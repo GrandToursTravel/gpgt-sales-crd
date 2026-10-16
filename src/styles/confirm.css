@@ -1,0 +1,183 @@
+/* confirmation */
+/* The podium band across the top of the completion page. Same treatment as
+   the step banners: bled to the card edges, 2:1 to match the file's own crop,
+   and faded into the card colour at the bottom so there is no seam. The top
+   corners are rounded because unlike the step banners this one sits against
+   the card's own corner. */
+.confirm-banner{
+  position:relative;
+  margin:-30px -32px 24px;
+  aspect-ratio:2 / 1;
+  overflow:hidden;
+  border-radius:calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;
+}
+.confirm-banner::before{
+  content:""; position:absolute; inset:0;
+  background-image:url("../assets/images/confirm-podium.webp");
+  background-size:cover;
+  background-position:center center;
+}
+.confirm-banner::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg,
+    rgba(24,24,27,.30) 0%,
+    rgba(24,24,27,.02) 22%,
+    rgba(24,24,27,.16) 58%,
+    rgba(24,24,27,.88) 88%,
+    var(--card) 100%);
+}
+@media (max-width:520px){
+  .confirm-banner{ margin:-26px -18px 20px; }
+}
+
+/* Horizontal padding to match .card, which this rule would otherwise cancel:
+   with none, the boxes below ran flush into the card's own border. */
+.confirm{ text-align:center; padding:30px 32px 26px; }
+@media (max-width:520px){ .confirm{ padding:26px 18px 22px; } }
+.confirm h2{
+  font-family:var(--font-display);
+  font-size:27px; font-weight:600; margin:0 0 10px;
+}
+.confirm p{ color:var(--text-dim); font-size:14.5px; margin:0 0 4px; }
+/* ---------- Award ----------
+   Adapted from a shadcn "Awards" component, award variant: a laurel wreath
+   behind a level pill, a heavy title, a rule, a subtitle, the recipient and a
+   date. Its four levels are bronze / silver / gold / platinum, and three of
+   those are already the tiers on this form - so the level is not decoration
+   here, it is the package the client actually chose, and the wreath, pill and
+   rule all take that tier's metal. */
+.award{
+  /* Wreath and text share one grid cell rather than the text being absolutely
+     positioned over it, so the block is exactly as tall as whichever is
+     taller. Sized off the wreath's own width, an absolute layout left the
+     leaves hanging out of the block and over the lines above and below. */
+  position:relative;
+  display:grid; place-items:center;
+  margin:10px 0 22px;
+}
+.award-wreath{
+  grid-area:1 / 1;
+  display:block;
+  width:min(100%, 366px); height:auto;
+  fill:var(--metal, var(--gold));
+  opacity:.6;
+  pointer-events:none;
+}
+.award-body{
+  grid-area:1 / 1;
+  position:relative; z-index:1;
+  max-width:min(100%, 284px);
+  text-align:center;
+}
+/* A soft well behind the text. The wreath is wider than the text at desktop
+   widths but not on a small phone, where the dimmer lines would otherwise sit
+   on top of leaves and fall under 4.5:1. */
+.award-body::before{
+  content:""; position:absolute; z-index:-1;
+  inset:-18px -26px;
+  /* Near-solid across the whole text box and fading only at the very edge:
+     a gentler gradient left the corners of the wider lines sitting on leaf,
+     where the dimmer greys measured under 3:1. */
+  background:radial-gradient(ellipse 78% 74% at center,
+    rgba(24,24,27,.94) 0%, rgba(24,24,27,.94) 64%, rgba(24,24,27,0) 100%);
+}
+.award-level{
+  display:inline-block; margin:0 0 8px;
+  padding:4px 15px; border-radius:var(--radius-sm);
+  background:linear-gradient(100deg, var(--metal,#c9a961), var(--metal-hi,#e0c98d));
+  color:#141416;
+  font-family:var(--font-display); font-weight:600; font-size:12px;
+  letter-spacing:.14em; text-transform:uppercase;
+}
+/* Held narrow on purpose: a long race name wrapping to two lines keeps the
+   text inside the wreath instead of running out through the leaves. */
+.award-title{
+  margin:0; font-family:var(--font-display); font-weight:700;
+  font-size:27px; line-height:1.06; letter-spacing:-.01em;
+  text-transform:uppercase; color:var(--text);
+  text-shadow:0 1px 10px rgba(24,24,27,.85);
+}
+.award-rule{
+  width:130px; max-width:70%; height:1px; margin:11px auto;
+  background:linear-gradient(90deg, transparent, var(--metal,var(--gold)), transparent);
+}
+/* Scoped under .award because these are <p> inside .confirm, and ".confirm p"
+   is more specific than a bare class - it was quietly winning the colour, the
+   size and the margins on all three lines. */
+.award .award-sub{
+  margin:0; font-size:14px; color:var(--text-dim);
+  text-shadow:0 1px 8px rgba(24,24,27,.9);
+}
+.award .award-recipient{
+  margin:6px 0 0; font-size:13.5px; font-style:italic; color:var(--text-faint);
+  text-shadow:0 1px 8px rgba(24,24,27,.9);
+}
+.award .award-ref{
+  margin:10px 0 0;
+  font-family:var(--font-display); font-weight:600; font-size:16px;
+  letter-spacing:.09em; color:var(--metal-name, var(--gold));
+  text-shadow:0 1px 8px rgba(24,24,27,.9);
+}
+@media (max-width:520px){
+  .award-wreath{ width:min(100%, 320px); }
+  .award-body{ max-width:min(100%, 248px); }
+  .award-title{ font-size:24px; }
+}
+@media (max-width:360px){
+  .award-wreath{ width:min(100%, 268px); opacity:.5; }
+  .award-body{ max-width:min(100%, 210px); }
+  .award-title{ font-size:21px; }
+}
+
+.ref-code{
+  display:inline-block; margin:18px 0 22px;
+  font-family:var(--font-display); letter-spacing:.08em;
+  background:var(--card-2); border:1px dashed var(--border-strong);
+  border-radius:var(--radius-sm); padding:10px 18px; font-size:15px;
+  color:var(--gold);
+}
+.steps-head{
+  margin:0 0 11px; text-align:left;
+  font-family:var(--font-display); font-weight:600; font-size:13px;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--text-faint);
+}
+/* A numbered ladder rather than a paragraph: three things happen next, in an
+   order, and the client should be able to see all three at a glance. */
+.next-steps{
+  list-style:none; counter-reset:ns;
+  text-align:left; background:var(--card-2); border:1px solid var(--border);
+  border-radius:var(--radius-sm); padding:18px 20px 17px; margin:0;
+}
+.next-steps li{
+  counter-increment:ns; position:relative;
+  padding:0 0 17px 41px;
+  font-size:13.5px; line-height:1.5; color:var(--text-dim);
+  overflow-wrap:anywhere;
+}
+.next-steps li:last-child{ padding-bottom:0; }
+.next-steps li::before{
+  content:counter(ns);
+  position:absolute; left:0; top:-1px;
+  width:27px; height:27px; border-radius:50%;
+  display:grid; place-items:center;
+  border:1px solid var(--gold); color:var(--gold);
+  font-family:var(--font-display); font-weight:600; font-size:13px;
+}
+.next-steps li::after{
+  content:""; position:absolute; left:13px; top:31px; bottom:3px;
+  width:1px; background:var(--border-strong);
+}
+.next-steps li:last-child::after{ display:none; }
+.next-steps b{ display:block; margin-bottom:2px; color:var(--text); font-weight:600; }
+@media (max-width:400px){
+  .next-steps{ padding:16px 15px 15px; }
+  .next-steps li{ padding-left:37px; }
+}
+
+.foot{
+  text-align:center; margin-top:20px;
+  font-family:var(--font-display);
+  letter-spacing:.02em; font-size:13.5px; color:var(--text-faint);
+}
+
+[data-fade]{ animation:fadeIn .32s ease both; }

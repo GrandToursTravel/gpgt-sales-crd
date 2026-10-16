@@ -1,0 +1,173 @@
+/* tier cards */
+/* Package tiers, as pricing cards. Adapted from the reference component
+   rather than lifted: no React, no Tailwind and no shadcn here, because the
+   whole page has to stay one self-contained file that works both as a link
+   and pasted into the GPGT site. So framer-motion's spring becomes a CSS
+   transition with a little overshoot, lucide's Diamond is drawn inline, and
+   the card is a real <button> - the footer "button" is decoration inside it,
+   since a control inside a control is a keyboard trap. */
+.tier-grid{ display:grid; grid-template-columns:1fr; gap:14px; }
+.tier{
+  position:relative;
+  overflow:hidden;              /* keeps the header sheen inside the radius */
+  display:flex; flex-direction:column;
+  text-align:left;
+  /* The metal, poured over the top of the card and fading out before the
+     list starts. Sized rather than clipped, so there is no edge where it
+     ends - a gradient that stops with its element leaves a visible seam. */
+  background:
+    linear-gradient(101deg,
+      rgba(0,0,0,0) 8%,
+      var(--metal-sheen, transparent) 30%,
+      rgba(0,0,0,0) 54%) no-repeat top left / 100% 132px,
+    linear-gradient(180deg,
+      var(--metal-wash, transparent) 0%,
+      rgba(0,0,0,0) 100%) no-repeat top left / 100% 190px,
+    var(--card-2);
+  border:1px solid var(--border-strong);
+  border-radius:var(--radius);
+  color:var(--text);
+  font-family:var(--font-body);
+  padding:20px 20px 18px;
+  cursor:pointer;
+  transition:transform .42s cubic-bezier(.34,1.42,.64,1),
+             box-shadow .28s ease, border-color .18s ease;
+}
+.tier:hover, .tier:focus-visible{
+  transform:translateY(-5px) scale(1.015);
+  box-shadow:0 18px 36px -10px rgba(0,0,0,.65);
+  border-color:#4c4c53;
+}
+/* Bronze, silver and gold are colour names, so let the cards be those
+   colours: a brushed metal edge across the top, a wash of the metal behind
+   the header, and the tier name in the metal itself. Each card supplies its
+   own --metal set, so this is one rule rather than three. */
+.tier::before{
+  content:""; position:absolute; left:0; right:0; top:0; height:3px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    var(--metal, #4c4c53) 16%,
+    var(--metal-hi, #6a6a72) 50%,
+    var(--metal, #4c4c53) 84%,
+    transparent 100%);
+  opacity:.85;
+}
+.tier-head{
+  position:relative;
+  display:flex; justify-content:space-between; align-items:flex-start; gap:14px;
+}
+.tier-title{ display:block; }
+.tier .name{
+  display:block;
+  font-family:var(--font-display); font-weight:600;
+  font-size:21px; letter-spacing:.01em;
+  color:var(--metal-name, var(--text));
+}
+.tier .kicker{
+  display:block; margin-top:5px;
+  font-size:10.5px; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--text-faint);
+}
+.tier .emblem{
+  width:52px; height:52px; flex:none;
+  filter:drop-shadow(0 0 9px var(--metal-glow, transparent));
+  transition:transform .42s cubic-bezier(.34,1.42,.64,1);
+}
+.tier:hover .emblem, .tier:focus-visible .emblem{ transform:scale(1.1) rotate(-6deg); }
+/* ---------- Grandstand rating ----------
+   Replaces the named grandstand on each card. Two rows of five stars, one
+   grey and one in the tier's metal clipped to the score, so 4.5 draws as a
+   half star without needing a half-star glyph. */
+.stand{
+  display:flex; align-items:center; gap:9px;
+  margin-top:14px; padding-bottom:13px;
+  border-bottom:1px solid var(--border);
+}
+.stand-label{
+  flex:none; font-size:12px; letter-spacing:.02em; color:var(--text-dim);
+}
+.stars{
+  position:relative; flex:none;
+  display:inline-block; line-height:0;
+  /* Stops a stray click on the stars selecting the card twice over. */
+  pointer-events:none;
+}
+.stars-bed, .stars-fill{ display:block; white-space:nowrap; line-height:0; }
+.stars svg{ width:14px; height:14px; display:inline-block; }
+.stars-bed svg{ fill:var(--border-strong); }
+.stars-fill{
+  position:absolute; inset:0 auto 0 0;
+  overflow:hidden;
+}
+.stars-fill svg{ fill:var(--metal-hi, var(--gold)); }
+.stand-score{
+  margin-left:auto;
+  font-family:var(--font-display); font-weight:600; font-size:13px;
+  letter-spacing:.03em;
+  color:var(--metal-name, var(--text));
+}
+@media (max-width:400px){
+  .stand{ gap:7px; }
+  .stand-label{ font-size:11.5px; }
+  .stars svg{ width:13px; height:13px; }
+}
+
+.tier .feats{
+  list-style:none; margin:13px 0 0; padding:0;
+  display:grid; grid-template-columns:1fr 1fr; gap:9px 18px;
+}
+@media (max-width:520px){ .tier .feats{ grid-template-columns:1fr; } }
+.tier .feats li{ display:flex; align-items:flex-start; gap:9px; font-size:13px; line-height:1.4; }
+.tier .feats svg{ width:12px; height:12px; flex:none; margin-top:3px; color:var(--accent-text); }
+/* Nothing on these cards differs by race any more, so there is no lead list:
+   the rating carries the seat, and everything else is the same six lines on
+   all three packages. The rule above them is gone with it - the rating row
+   already draws one. */
+.tier .feats.rest{
+  margin:14px 0 0; padding-top:0;
+}
+.tier .feats.rest li{ font-size:12.5px; color:var(--text-dim); }
+.tier .feats.rest svg{ width:10px; height:10px; margin-top:3px; }
+.tier .cta{
+  display:block; margin-top:18px; padding:11px;
+  text-align:center; border-radius:var(--radius-sm);
+  background:var(--card); border:1px solid var(--border-strong);
+  color:var(--text); font-weight:600; font-size:13.5px;
+  transition:background .18s ease, border-color .18s ease, color .18s ease;
+}
+.tier:hover .cta, .tier:focus-visible .cta{ background:#26262b; border-color:#4c4c53; }
+.tier.selected{
+  border-color:var(--accent);
+  box-shadow:0 0 0 1px var(--accent) inset, 0 18px 36px -12px rgba(0,0,0,.6);
+}
+.tier.selected .cta{ background:var(--accent); border-color:var(--accent); color:#fff; }
+@media (prefers-reduced-motion: reduce){
+  .tier, .tier .emblem{ transition:border-color .18s ease; }
+  .tier:hover, .tier:focus-visible{ transform:none; }
+  .tier:hover .emblem, .tier:focus-visible .emblem{ transform:none; }
+}
+.tier.unsure{
+  flex-direction:row; align-items:center; justify-content:space-between;
+  gap:14px; padding:15px 20px;
+}
+.tier.unsure{ cursor:default; }
+.tier.unsure:hover, .tier.unsure:focus-within{ transform:none; box-shadow:none; }
+.unsure-pick{
+  flex:1 1 auto; min-width:0;
+  background:none; border:0; padding:0; margin:0;
+  text-align:left; cursor:pointer;
+  color:var(--text); font-family:var(--font-body);
+}
+.tier.unsure .name{ font-size:15px; }
+.tier.unsure.selected{ border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+.tier.unsure .cta{
+  margin-top:0; padding:9px 16px; flex:none;
+  text-decoration:none; white-space:nowrap;
+}
+.tier.unsure .cta:hover, .tier.unsure .cta:focus-visible{
+  background:var(--accent); border-color:var(--accent); color:#fff;
+}
+.unsure-pick:focus-visible, .tier.unsure .cta:focus-visible{
+  outline:2px solid var(--gold); outline-offset:3px;
+}
+.tier.unsure .name{ color:var(--text-dim); font-family:var(--font-body); text-transform:none; font-weight:600; font-size:14px; }

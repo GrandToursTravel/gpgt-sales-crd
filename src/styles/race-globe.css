@@ -1,0 +1,149 @@
+/* race grid */
+.search-input{
+  width:100%;
+  background:var(--card-2);
+  border:1px solid var(--border-strong);
+  border-radius:var(--radius-sm);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:14.5px;
+  padding:11px 14px;
+  margin-bottom:14px;
+}
+.search-input::placeholder{ color:var(--text-faint); }
+.search-input:focus{ outline:none; border-color:var(--accent); }
+
+.globe-col{ margin-top:22px; }
+/* The globe is a single canvas shared by two steps, so it is parked in
+   whichever slot belongs to the step on screen. Rebuilding it per step would
+   mean two lookup tables and two copies of the texture in memory. */
+.globe-slot{ min-height:1px; }
+/* The globe sits in a box of its own so the night sky has somewhere to live:
+   the globe fills all but ~20px of its square, which is not enough room for
+   stars to read, so the sky bleeds out to the card edges behind it. The
+   caption stays outside the box - stars behind small text cost more in
+   legibility than they add. */
+.globe-sky{
+  position:relative;
+  margin:0 -32px;
+  padding:30px 0 14px;
+  --sky-photo:url("../assets/images/globe-sky.webp");
+}
+/* The night sky is a photograph, vignetted into the card colour rather than
+   masked: the card is a flat colour, so painting gradients of it over the
+   photo gives the same soft edge and needs no mask support. */
+.globe-sky::before{
+  content:""; position:absolute; inset:0; z-index:0;
+  pointer-events:none;
+  /* Four edge fades rather than one radial. The box is 1.6 times wider than
+     it is tall, so a radial big enough to reach the card colour at the top
+     edge would have closed to little more than the globe itself; feathering
+     each side separately keeps sky in the corners, where there is actually
+     room for it. */
+  background-image:
+    linear-gradient(180deg, var(--card) 0%, rgba(24,24,27,0) 17%),
+    linear-gradient(0deg,   var(--card) 0%, rgba(24,24,27,0) 15%),
+    linear-gradient(90deg,  var(--card) 0%, rgba(24,24,27,0) 13%),
+    linear-gradient(270deg, var(--card) 0%, rgba(24,24,27,0) 13%),
+    radial-gradient(58% 66% at 12% 86%, rgba(207,33,42,.12), rgba(207,33,42,0) 72%),
+    var(--sky-photo);
+  background-size:100% 100%, 100% 100%, 100% 100%, 100% 100%, auto, cover;
+  background-position:center, center, center, center, center, center 44%;
+  background-repeat:no-repeat;
+}
+.globe-wrap{
+  position:relative;
+  z-index:1;
+  width:100%;
+  max-width:100%;
+  margin:0 auto;
+  aspect-ratio:1/1;
+}
+@media (max-width:520px){ .globe-sky{ margin:0 -18px; padding:22px 0 10px; } }
+.globe-wrap canvas{ width:100%; height:100%; display:block; }
+.globe-pin{
+  position:absolute; width:34px; height:34px; margin:-17px 0 0 -17px;
+  pointer-events:none; display:flex; align-items:center; justify-content:center;
+  transition:opacity .3s ease;
+}
+.globe-pin .ring{
+  position:absolute; inset:0; border:2px solid var(--accent-bright);
+  border-radius:50%; opacity:0; animation:globePulse 2.1s ease-out infinite;
+}
+.globe-pin .ring:nth-child(2){ animation-delay:.75s; }
+.globe-pin .dot{
+  width:9px; height:9px; background:var(--accent-bright); border-radius:50%;
+  box-shadow:0 0 0 3px var(--card), 0 0 10px 2px rgba(234,61,70,.75);
+}
+@keyframes globePulse{
+  0%{ transform:scale(.35); opacity:.85; }
+  100%{ transform:scale(1.5); opacity:0; }
+}
+/* The selected race is labelled on the globe itself, the way a broadcast
+   graphic labels a city: a leader line up from the marker to a flag. */
+.globe-pin .pin-stem{
+  position:absolute; left:16px; bottom:17px;
+  width:2px; height:var(--stem,42px);
+  background:linear-gradient(180deg, rgba(234,61,70,.30), var(--accent-bright));
+}
+.globe-pin.below .pin-stem{ bottom:auto; top:17px;
+  background:linear-gradient(0deg, rgba(234,61,70,.30), var(--accent-bright)); }
+.globe-pin .pin-label{
+  position:absolute; bottom:calc(17px + var(--stem,42px));
+  display:block; white-space:nowrap;
+  background:var(--accent); color:#fff;
+  font-family:var(--font-display); font-weight:600;
+  font-size:12.5px; letter-spacing:.055em; text-transform:uppercase;
+  padding:5px 10px 4px; border-radius:3px;
+  box-shadow:0 3px 14px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.35);
+}
+.globe-pin.below .pin-label{ bottom:auto; top:calc(17px + var(--stem,42px)); }
+@media (max-width:520px){
+  .globe-pin .pin-label{ font-size:11px; padding:4px 8px 3px; }
+}
+
+.globe-caption{
+  margin:14px 0 0; text-align:center;
+  font-size:13px; color:var(--text-faint); line-height:1.4;
+  min-height:38px;
+}
+.globe-caption b{ color:var(--text); font-weight:700; display:block; font-size:16px; }
+/* Kept in the DOM when the label takes over, so the live region still
+   announces the choice to a screen reader. */
+.globe-caption.sr-only{
+  position:absolute; width:1px; height:1px; min-height:0;
+  margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;
+}
+
+/* race search combobox */
+.race-search{ position:relative; }
+.search-input{ margin-bottom:0; }
+.race-menu{
+  position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:20;
+  background:var(--card-2);
+  border:1px solid var(--border-strong);
+  border-radius:var(--radius-sm);
+  max-height:264px; overflow-y:auto;
+  box-shadow:0 18px 40px rgba(0,0,0,.55);
+  padding:5px;
+}
+.race-option{
+  display:block; width:100%; text-align:left;
+  background:none; border:none; border-radius:6px;
+  color:var(--text); font-family:var(--font-body);
+  padding:10px 12px; cursor:pointer;
+}
+.race-option:hover, .race-option.active{ background:rgba(255,255,255,0.06); }
+.race-option[aria-selected="true"]{
+  background:linear-gradient(0deg, var(--accent-dim), var(--accent-dim));
+  box-shadow:inset 0 0 0 1px var(--accent);
+}
+.race-option .name{ display:block; font-weight:600; font-size:14px; }
+.race-option .place{ display:block; color:var(--text-faint); font-size:12px; margin-top:1px; }
+.race-empty{ padding:12px; color:var(--text-faint); font-size:13px; text-align:center; }
+
+@media (max-width:520px){
+  .globe-wrap{ max-width:100%; }
+  .globe-caption{ font-size:12.5px; }
+  .globe-caption b{ font-size:15px; }
+}

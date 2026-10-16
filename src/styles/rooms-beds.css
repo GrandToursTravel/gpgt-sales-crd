@@ -1,0 +1,145 @@
+/* steppers */
+.stepper-row{ display:flex; align-items:center; gap:16px; }
+.count-rows{ display:grid; gap:12px; }
+.count-row{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  background:var(--card-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:12px 14px 12px 16px;
+}
+.count-label{ font-size:14.5px; }
+.room-text .count-label{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.count-row .stepper{ background:var(--card); }
+/* A room type at zero is offered but not chosen, so it recedes; the ones in
+   the party's actual booking stay at full contrast. */
+.count-row.is-zero{ background:transparent; }
+.count-row.is-zero .count-label{ color:var(--text-dim); }
+/* A photograph of the room beside its name: the beds answer "which one is
+   this?" faster than the word does, and it lets the rows carry the bed
+   configuration without a wall of text. */
+/* min-width:0 on the row as well as on the text: a grid item will not
+   shrink below its own min-content unless told it may, which is what let
+   the label push the row wider than the card on a 320px screen. */
+.room-row{ gap:14px; padding:11px 14px 11px 11px; min-width:0; }
+.room-thumb{
+  flex:none; display:block;
+  width:106px; height:71px;
+  object-fit:cover; border-radius:7px;
+  border:1px solid var(--border-strong);
+  transition:opacity .18s ease;
+}
+.room-text{ flex:1 1 auto; min-width:0; overflow:hidden; }
+.room-beds{
+  display:block; margin-top:3px;
+  font-size:12px; color:var(--text-faint); line-height:1.3;
+  /* Allowed to clip rather than to push: a long bed line must never be able
+     to widen the row past the card and set the whole page scrolling. */
+  overflow:hidden; text-overflow:ellipsis;
+}
+/* A room at zero is offered but not chosen, so its photo recedes too. */
+.count-row.is-zero .room-thumb{ opacity:.5; }
+/* On a phone there is not room for photo, name and stepper on one line -
+   the stepper alone is 146px - so the row becomes two: the photo down the
+   left, the name and its beds top right, the stepper beneath. Everything
+   stays readable instead of being trimmed to "Dou...". */
+@media (max-width:520px){
+  .room-row{
+    display:grid;
+    grid-template-columns:auto minmax(0, 1fr);
+    grid-template-areas:"pic text" "pic step";
+    align-items:center;
+    column-gap:12px; row-gap:9px;
+    padding:11px 13px 11px 11px;
+  }
+  .room-thumb{
+    grid-area:pic; align-self:stretch;
+    width:88px; height:auto; min-height:80px;
+  }
+  .room-text{ grid-area:text; }
+  .room-row .stepper{ grid-area:step; justify-self:start; }
+  .room-beds{ font-size:11.5px; }
+}
+/* Below ~345px even the two-row layout runs out: photo (88) plus stepper
+   (146) plus the gaps is wider than the row, and the plus button pushed out
+   through the card's right edge. So the stepper takes a full-width row of its
+   own and spreads into it - the buttons stay 44px, which the alternative of
+   shrinking them would not. */
+@media (max-width:345px){
+  .room-row{ grid-template-areas:"pic text" "step step"; row-gap:10px; }
+  .room-thumb{ align-self:start; }
+  .room-row .stepper{ justify-self:stretch; }
+  .room-row .stepper output{ flex:1 1 auto; min-width:0; }
+}
+.rooms-total{ margin:14px 0 0; font-size:13.5px; color:var(--text-faint); }
+
+/* ---------- Bed itinerary ----------
+   The room types are what the client picks; beds are what they actually
+   care about, and what operations has to book. Double = 1 double bed,
+   Twin = 2 singles, Triple = 1 double + 1 single, so the two are not the
+   same count and the sum is worth showing rather than leaving them to work
+   out. Line per type chosen, then the totals. */
+.beds{
+  margin:14px 0 0;
+  background:var(--card-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:14px 16px 13px;
+}
+.beds-title{
+  display:flex; align-items:center; gap:8px;
+  margin:0 0 11px;
+  font-family:var(--font-display); font-weight:600; font-size:13.5px;
+  letter-spacing:.02em; color:var(--text);
+}
+.beds-title svg{ width:16px; height:16px; flex:none; color:var(--gold); }
+.beds-list{ list-style:none; margin:0; padding:0; }
+.beds-list li{
+  display:flex; align-items:baseline; justify-content:space-between; gap:14px;
+  padding:5px 0;
+  font-size:13px; color:var(--text-dim);
+}
+.beds-list .bl-room{ flex:none; }
+.beds-list .bl-beds{ text-align:right; color:var(--text); }
+.beds-total{
+  display:flex; align-items:baseline; justify-content:space-between;
+  flex-wrap:wrap; gap:4px 14px;
+  margin-top:11px; padding-top:11px;
+  border-top:1px solid var(--border);
+  font-size:13.5px;
+}
+.beds-total .bt-key{ color:var(--text-faint); }
+.beds-total .bt-val{ text-align:right; color:var(--text); font-weight:600; }
+/* nowrap so the separator cannot be left dangling at the end of a line with
+   "sleeps 13" pushed onto the next one. */
+.beds-total .bt-sleeps{ color:var(--gold); font-weight:600; white-space:nowrap; }
+/* Room and beds on one line for as long as they fit - only under ~345px does
+   "3 × Triple" plus "3 doubles + 3 singles" stop fitting side by side. */
+@media (max-width:345px){
+  .beds{ padding:13px 13px 12px; }
+  .beds-list li{ display:block; padding:6px 0; }
+  .beds-list .bl-beds{ display:block; text-align:left; margin-top:2px; font-size:12.5px; }
+  .beds-total{ display:block; }
+  .beds-total .bt-val{ display:block; text-align:left; margin-top:3px; }
+}
+.stepper{
+  display:flex; align-items:center; gap:0;
+  background:var(--card-2);
+  border:1px solid var(--border-strong);
+  border-radius:999px;
+  overflow:hidden;
+}
+.stepper button{
+  width:44px; height:44px;
+  background:transparent; border:none; color:var(--text);
+  font-size:20px; cursor:pointer; font-family:var(--font-body);
+}
+.stepper button:hover:not(:disabled){ background:rgba(255,255,255,0.05); }
+.stepper button:disabled{ color:var(--text-faint); opacity:.45; cursor:default; }
+.stepper output{
+  min-width:56px; text-align:center;
+  font-variant-numeric:tabular-nums;
+  font-weight:700; font-size:17px;
+}
+.stepper-pair{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:420px){ .stepper-pair{ grid-template-columns:1fr; } }

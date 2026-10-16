@@ -1,0 +1,64 @@
+/* ---------- Card / wizard ---------- */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:36px 32px 32px;
+}
+@media (max-width:520px){ .card{ padding:26px 18px 22px; } }
+
+.progress-row{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:14px;
+  margin-bottom:26px;
+}
+.progress-block{ min-width:0; }
+/* The logo sits in the card header, so it is on every question rather than
+   only the opening screen. Its data lives once, on the hero image, and is
+   copied across at boot - the file is large enough without three copies of
+   the same 21KB. */
+.mark-logo{
+  height:21px; width:auto; flex:none;
+  margin-top:1px;
+  opacity:.92;
+}
+@media (max-width:420px){ .mark-logo{ height:15px; } }
+/* Width-led rather than height-led: at 30px tall the mark is 282px wide,
+   which is wider than the card on a 320px screen, and it was being cut off
+   mid-wordmark. */
+.confirm .mark-logo{
+  width:282px; max-width:100%; height:auto;
+  display:block; margin:0 auto 18px; opacity:1;
+}
+.progress-label{
+  font-family:var(--font-display);
+  letter-spacing:.02em;
+  font-size:12.5px;
+  color:var(--text-faint);
+}
+.progress-label b{ color:var(--accent-text); font-weight:600; }
+.progress-track{
+  display:flex; gap:5px; margin-top:10px;
+}
+.progress-seg{
+  height:4px; flex:1; border-radius:2px;
+  background:var(--border-strong);
+  transition:background .2s ease;
+}
+.progress-seg.done{ background:var(--accent); }
+
+.step{ }
+.step[hidden]{ display:none; }
+
+.step h2{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:23px;
+  letter-spacing:0;
+  margin:0 0 6px;
+}
+.step .sub{
+  color:var(--text-dim);
+  font-size:14.5px;
+  margin:0 0 24px;
+}

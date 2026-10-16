@@ -1,0 +1,142 @@
+/* An image band across the opening question - bled to the card edges and
+   faded into the card below it, so it reads as part of the panel rather than
+   a picture dropped on top of one. The crop is baked into the file at 2:1 and
+   the band keeps that ratio, so the driver and the car sit in the same place
+   at every width. */
+.step-banner{
+  position:relative;
+  margin:0 -32px 30px;
+  aspect-ratio:2 / 1;
+  overflow:hidden;
+}
+.step-banner::before{
+  content:""; position:absolute; inset:0;
+  background-image:url("../assets/images/banner-first-name.webp");
+  background-size:cover;
+  background-position:center center;
+}
+/* Two scrims. The vertical one lands the photo on the card colour exactly so
+   there is no seam; the horizontal one settles the darker right-hand side. */
+.step-banner::after{
+  content:""; position:absolute; inset:0;
+  background:
+    linear-gradient(90deg,
+      rgba(12,12,14,.18) 0%,
+      rgba(12,12,14,.04) 38%,
+      rgba(12,12,14,.22) 82%,
+      rgba(12,12,14,.40) 100%),
+    linear-gradient(180deg,
+      rgba(24,24,27,.42) 0%,
+      rgba(24,24,27,.06) 26%,
+      rgba(24,24,27,.18) 62%,
+      rgba(24,24,27,.86) 90%,
+      var(--card) 100%);
+}
+@media (max-width:520px){
+  .step-banner{ margin:0 -18px 24px; }
+}
+
+/* Second treatment, for the last-name step: the photo runs full width and
+   uncropped and the question sits on its lower-left corner.
+
+   The media is a real block in the flow, sized by aspect-ratio, and the
+   heading is pulled back up onto it. Percentage padding would have been the
+   obvious way to reserve the photo's height, but percentages resolve against
+   the containing block's width, and the media is wider than that by the two
+   negative margins - so the reserved space and the photo would not have
+   matched. This way the browser measures it.
+
+   The wash is anchored to the bottom-left corner where the text sits, so the
+   skyline, the grandstand and the circuit stay at full brightness. On a phone
+   the heading is proportionally much wider than the photo is tall and runs
+   past that corner, so there the wash becomes a plain bottom scrim - hence a
+   variable rather than a value baked into the rule; the ratio is a variable
+   too, so a step only has to supply its photo and its shape. */
+.step-stage{
+  position:relative;
+  margin-bottom:4px;
+  --stage-seam:linear-gradient(180deg,
+    rgba(24,24,27,0) 86%,
+    rgba(22,22,25,.55) 94%,
+    var(--card) 100%);
+  /* Wide and shallow on purpose: wide enough that a wrapped heading stays on
+     dark ground right across the card, shallow enough that it never climbs
+     far enough up the photo to touch the cars. */
+  --stage-wash:radial-gradient(230% 32% at 0% 100%,
+    rgba(8,8,10,.95) 0%,
+    rgba(8,8,10,.92) 45%,
+    rgba(8,8,10,.80) 62%,
+    rgba(8,8,10,.45) 78%,
+    rgba(8,8,10,0) 92%);
+}
+.stage-media{
+  margin:0 -32px;
+  aspect-ratio:var(--stage-ratio);
+  background-image:var(--stage-seam), var(--stage-wash), var(--stage-photo);
+  background-size:cover, cover, cover;
+  background-position:center, center, center;
+  background-repeat:no-repeat, no-repeat, no-repeat;
+}
+/* .step h2 is declared later in the sheet at equal specificity, so this
+   needs the extra class to keep its negative margin. */
+/* Held to a measure so the heading wraps inside the corner wash instead of
+   running out across the bright half of the photo. */
+.step .step-stage h2{
+  position:relative;
+  margin:-48px 0 6px;
+  max-width:20ch;
+  text-shadow:0 1px 12px rgba(0,0,0,.8);
+}
+.step-stage .sub{ position:relative; }
+@media (max-width:520px){
+  .stage-media{ margin:0 -18px; }
+  .step .step-stage h2{ margin-top:-42px; }
+  /* Only the very wide photos need this. On one that is 1.5:1 the corner
+     wash still reaches well past the heading, and a bottom scrim there
+     would dim the cars. */
+  .step-stage.is-wide{
+    --stage-wash:linear-gradient(180deg,
+      rgba(8,8,10,0) 30%,
+      rgba(8,8,10,.40) 52%,
+      rgba(8,8,10,.78) 70%,
+      rgba(8,8,10,.93) 86%,
+      rgba(8,8,10,.96) 100%);
+  }
+}
+
+/* Third treatment, for the phone step: the same full-bleed uncropped photo,
+   but the question sits below it. The car here is in the bottom-left corner -
+   exactly where the last-name layout puts its text - so overlaying would have
+   buried the subject. No fade at the foot either, for the same reason; the
+   last rows are dark tarmac against a dark card, so a clean edge is quieter
+   than a scrim across the car. */
+.step-plate{
+  position:relative;
+  margin:0 -32px 26px;
+  aspect-ratio:var(--plate-ratio, 547 / 365);
+  background-image:var(--plate-photo);
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+/* Opt-in, for a photo that ends on something bright: cloud meeting the card
+   colour dead-on reads as a picture pasted in. The Silverstone shot does not
+   use it - the car sits on the bottom edge and a scrim would dim it. */
+.step-plate.fade-foot::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:24%;
+  background:linear-gradient(180deg,
+    rgba(24,24,27,0) 0%,
+    rgba(24,24,27,.30) 46%,
+    rgba(24,24,27,.80) 80%,
+    var(--card) 100%);
+}
+@media (max-width:520px){
+  .step-plate{ margin:0 -18px 22px; }
+}
+
+/* The photos for the last-name, phone and email steps. These were inline
+   style attributes on the markup; they live here so the build fingerprints
+   them like every other image. */
+.photo-last-name{ --stage-photo:url("../assets/images/stage-last-name.webp"); }
+.photo-phone{ --plate-photo:url("../assets/images/plate-phone.webp"); }
+.photo-email{ --plate-photo:url("../assets/images/plate-email.webp"); }

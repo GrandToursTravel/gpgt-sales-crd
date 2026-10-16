@@ -1,0 +1,29 @@
+/* ---------- Wishes ----------
+   The one page that is not a question with a right answer. Everything on it
+   is optional, so it has to earn its answers rather than require them: the
+   occasion chips are a low-effort way in for someone who will not type, and
+   picking one puts a specific prompt next to the box so the blank page stops
+   being a blank page. The meter under the box rewards detail, because detail
+   is the entire point of the page. */
+.chips{ display:flex; flex-wrap:wrap; gap:9px; margin:0 0 2px; }
+.chip{
+  display:inline-flex; align-items:center; gap:7px;
+  padding:9px 15px;
+  background:none;
+  border:1px solid var(--border);
+  border-radius:999px;
+  color:var(--text-dim);
+  font-family:var(--font-body); font-size:13.5px;
+  cursor:pointer;
+  transition:border-color .16s ease, color .16s ease, background .16s ease;
+}
+.chip:hover{ border-color:var(--border-strong); color:var(--text); }
+.chip:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+.chip[aria-pressed="true"]{
+  border-color:var(--accent); background:var(--accent-dim); color:var(--text);
+}
+.chip-mark{
+  flex:none; width:14px; text-align:center;
+  font-size:12px; line-height:1; color:var(--text-faint);
+}
+.chip[aria-pressed="true"] .chip-mark{ color:var(--accent-text); }

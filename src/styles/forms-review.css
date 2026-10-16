@@ -1,0 +1,84 @@
+/* text inputs */
+.field{ margin-bottom:18px; }
+.field input, .field select{
+  width:100%;
+  background:var(--card-2);
+  border:1px solid var(--border-strong);
+  border-radius:var(--radius-sm);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:15px;
+  padding:12px 14px;
+}
+.field input:focus, .field select:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-dim); }
+.pick:focus-visible, .tier:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+.err{ display:block; color:var(--accent-text); font-size:12.5px; margin-top:8px; min-height:16px; }
+/* Only ever seen if the post to the endpoint fails: the client has done
+   everything right, so it says what happened and what to do next rather
+   than just going red. */
+.send-error{
+  margin:16px 0 0; padding:12px 15px;
+  background:var(--accent-dim); border:1px solid var(--accent);
+  border-radius:var(--radius-sm);
+  font-size:13.5px; line-height:1.5; color:var(--text);
+}
+.field input::placeholder{ color:var(--text-faint); }
+.two-col{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:480px){ .two-col{ grid-template-columns:1fr; } }
+
+/* nav buttons */
+.nav-row{
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:30px;
+}
+
+/* review */
+.summary-list{ display:flex; flex-direction:column; gap:0; margin-bottom:8px; }
+.summary-row{
+  display:flex; justify-content:space-between; gap:16px;
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.summary-row:last-child{ border-bottom:none; }
+.summary-row .k{ flex:none; color:var(--text-faint); font-size:13px; }
+/* min-width:0 plus a break of last resort: an email address is one unbreakable
+   word, and without these it ran out through the right-hand edge of the card
+   and took the Edit button with it. */
+.summary-row .v{
+  min-width:0; font-weight:600; font-size:14px; text-align:right;
+  overflow-wrap:anywhere;
+}
+/* A paragraph of free text cannot sit right-aligned opposite its label - it
+   stacks under it, keeps the client's own line breaks, and drops the bold. */
+.summary-row.is-long{ display:block; position:relative; padding-right:46px; }
+.summary-row.is-long .v{
+  display:block; margin-top:7px;
+  text-align:left; font-weight:400; white-space:pre-wrap;
+  color:var(--text-dim); line-height:1.55;
+}
+/* Lifted out to sit opposite the label rather than trailing the last word of
+   the paragraph, which is where an inline Edit lands once the value wraps. */
+.summary-row.is-long .edit{
+  position:absolute; top:12px; right:0; margin-left:0;
+}
+.summary-row .edit{
+  background:none; border:none; color:var(--accent-text); font-size:12.5px;
+  font-weight:700; cursor:pointer; margin-left:10px; text-decoration:underline;
+  text-underline-offset:2px; padding:10px 6px; margin-top:-10px; margin-bottom:-10px;
+}
+/* On a narrow phone a right-aligned value opposite its label leaves both
+   wrapping to two lines - "Beds / included" against "1 double bed (sleeps 2)".
+   Every row stacks instead, which is the same shape the free-text row already
+   uses, with the Edit lifted up beside the label. */
+@media (max-width:430px){
+  .summary-row{ display:block; position:relative; padding-right:46px; }
+  .summary-row .k{ display:block; }
+  .summary-row .v{ display:block; margin-top:5px; text-align:left; }
+  .summary-row .edit{ position:absolute; top:12px; right:0; margin-left:0; }
+}
+
+/* The spam trap. Off-screen rather than display:none, which some bots skip. */
+.hp{
+  position:absolute; left:-10000px; top:auto;
+  width:1px; height:1px; overflow:hidden;
+}

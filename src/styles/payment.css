@@ -1,0 +1,146 @@
+/* ---------- Payment plan ----------
+   Adapted from a shadcn/Tailwind pricing card: three stacked options, a radio
+   dot on each, and one outline that slides to whichever is chosen. The
+   original hard-codes the slide as translateY(active * 88px) because every
+   row there is exactly 88px tall. These rows are not - the labels wrap at
+   narrow widths - so the outline is measured off the live row instead, which
+   also means it stays right when the text reflows. */
+.plans{
+  background:var(--card-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:12px;
+}
+.plan-rows{ position:relative; display:grid; gap:12px; }
+.plan-rail{
+  position:absolute; left:0; right:0; top:0;
+  border:2px solid var(--accent);
+  border-radius:var(--radius-sm);
+  pointer-events:none;
+  opacity:0;
+  transition:transform .3s cubic-bezier(.2,.7,.3,1), height .3s cubic-bezier(.2,.7,.3,1), opacity .2s ease;
+}
+.plan-rail.is-on{ opacity:1; }
+.plan{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:14px;
+  padding:15px 16px;
+  border:1px solid var(--border-strong);
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  transition:border-color .2s ease, background .2s ease;
+}
+.plan:hover{ border-color:var(--text-faint); }
+.plan input{
+  position:absolute; width:1px; height:1px; margin:-1px;
+  padding:0; border:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;
+}
+.plan input:focus-visible + .plan-body{ outline:2px solid var(--gold); outline-offset:6px; border-radius:4px; }
+.plan-body{ min-width:0; }
+.plan-name{
+  display:block;
+  font-family:var(--font-display); font-weight:600; font-size:17.5px;
+  letter-spacing:.01em; color:var(--text);
+}
+.plan-note{ display:block; margin-top:3px; font-size:13px; line-height:1.4; color:var(--text-dim); }
+.plan-dot{
+  flex:none; width:22px; height:22px; margin-top:3px;
+  border:2px solid var(--border-strong); border-radius:50%;
+  display:grid; place-items:center;
+  transition:border-color .3s ease;
+}
+.plan-dot::after{
+  content:""; width:11px; height:11px; border-radius:50%;
+  background:var(--accent-bright); opacity:0;
+  transition:opacity .3s ease;
+}
+.plan.is-on .plan-dot{ border-color:var(--accent-bright); }
+.plan.is-on .plan-dot::after{ opacity:1; }
+
+/* The count control sits outside the three rows rather than inside the third
+   one: a stepper nested in a label would fire the label's own radio on every
+   press of the plus button. */
+.plan-count{
+  margin-top:12px; padding:15px 16px 14px;
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  background:var(--card);
+}
+.plan-count-row{ display:flex; align-items:center; gap:14px; }
+.plan-count-word{ font-size:14.5px; color:var(--text-dim); }
+.sr-only{
+  position:absolute; width:1px; height:1px; margin:-1px; padding:0;
+  border:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;
+}
+.plan-count-foot{ margin:12px 0 0; font-size:12.5px; line-height:1.45; color:var(--text-faint); }
+.pay-terms{
+  list-style:none; margin:18px 0 0; padding:0;
+  display:grid; gap:9px;
+}
+.pay-terms li{
+  display:flex; align-items:flex-start; gap:10px;
+  font-size:13px; line-height:1.4; color:var(--text-dim);
+}
+.pay-terms svg{ width:11px; height:11px; flex:none; margin-top:3px; color:var(--gold); }
+/* An odometer rather than a redrawn number: each column holds its whole strip
+   of digits and slides to the one it should be showing, which is the roll the
+   reference gets from NumberFlow. */
+.roll{
+  display:inline-flex; align-items:flex-end; justify-content:center;
+  font-family:var(--font-body); font-weight:700; font-size:17px;
+  line-height:1; color:var(--text);
+  font-variant-numeric:tabular-nums;
+}
+/* Sized to the plain steppers' readout so the pill is the same width whether
+   its number rolls or not. */
+.stepper-roll .roll{ min-width:56px; }
+.roll-col{ height:1em; overflow:hidden; transition:width .3s ease; }
+/* Below ten there is no tens digit, so its column closes up rather than
+   leaving a blank slot between the figure and the word beside it. */
+.roll-col.is-blank{ width:0 !important; }
+.roll-strip{
+  display:flex; flex-direction:column;
+  transition:transform .38s cubic-bezier(.22,.8,.28,1);
+}
+.roll-strip span{ height:1em; display:block; text-align:center; min-width:.6em; }
+@media (max-width:400px){
+  .plan{ padding:14px 13px; }
+  .plan-count{ padding:14px 13px 13px; }
+  .plan-count-row{ flex-wrap:wrap; gap:10px 12px; }
+}
+@media (prefers-reduced-motion:reduce){
+  .plan-rail, .plan-dot, .plan-dot::after, .roll-strip{ transition:none; }
+}
+
+.wish-field{ margin-top:22px; }
+.wish-box{
+  display:block; width:100%; min-height:152px; resize:vertical;
+  background:var(--card-2);
+  border:1px solid var(--border-strong);
+  border-radius:var(--radius-sm);
+  color:var(--text);
+  font-family:var(--font-body); font-size:15px; line-height:1.6;
+  padding:13px 14px;
+}
+.wish-box:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-dim); }
+.wish-box::placeholder{ color:var(--text-faint); }
+.wish-meter{
+  display:flex; align-items:center; gap:9px;
+  margin:10px 0 0; font-size:12.5px; color:var(--text-faint);
+  min-height:18px;
+}
+.wish-meter.is-full{ color:var(--gold); }
+.wish-bar{
+  flex:none; width:74px; height:3px; border-radius:2px;
+  background:var(--border-strong); overflow:hidden;
+}
+.wish-bar span{
+  display:block; height:100%; width:0;
+  background:var(--accent);
+  transition:width .25s ease, background .25s ease;
+}
+.wish-meter.is-full .wish-bar span{ background:var(--gold); }
+@media (prefers-reduced-motion:reduce){
+  .chip, .wish-bar span{ transition:none; }
+}
+
+.field-label{ display:block; font-size:13px; color:var(--text-dim); margin-bottom:9px; font-weight:600; }

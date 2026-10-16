@@ -1,0 +1,123 @@
+/* ---------- Date range calendar ----------
+   The reference for this page is a shadcn / react-day-picker range calendar.
+   There is no React or Tailwind here on purpose - the whole thing has to stay
+   one file that works as a link and pasted into the GPGT site - so the
+   behaviour is rebuilt natively: two months side by side, a range with
+   rounded ends and a flat middle, a hover preview while picking, and a real
+   grid that answers to the arrow keys. */
+.cal{
+  /* Capped, then centred: the day cells are square, so at the full width of
+     the card each one comes out over 80px and the month fills the screen.
+     Left-aligned at this width it sat in the corner with a dead gutter beside
+     it - centred, it reads as the subject of the page, which is what it is. */
+  max-width:462px; margin:0 auto 22px;
+  background:var(--card-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px 16px 14px;
+}
+.cal-bar{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px; margin-bottom:8px;
+}
+.cal-month-name{
+  flex:1 1 auto; text-align:center;
+  font-family:var(--font-display); font-weight:600; font-size:17px;
+  letter-spacing:.02em;
+}
+.cal-nav{
+  flex:none; width:34px; height:34px;
+  display:grid; place-items:center;
+  background:none; border:1px solid var(--border); border-radius:var(--radius-sm);
+  color:var(--text-dim); cursor:pointer;
+  transition:color .16s ease, border-color .16s ease, background .16s ease;
+}
+.cal-nav svg{ width:16px; height:16px; }
+.cal-nav:hover:not(:disabled){ color:var(--text); border-color:var(--border-strong); background:var(--card); }
+.cal-nav:disabled{ opacity:.35; cursor:default; }
+.cal-nav:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+.cal-grids{ display:block; }
+.cal-grid{ display:grid; grid-template-columns:repeat(7, 1fr); }
+.cal-wd{
+  height:24px; display:grid; place-items:center;
+  font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--text-faint);
+}
+/* Two elements per day: the cell paints the range band edge to edge so
+   consecutive days join with no gaps, the button paints the day itself. */
+.cal-cell{ position:relative; }
+/* Two bands: the package nights the client is buying, and any nights they
+   have added either side. Different colours so the page answers "what is
+   mine and what have I added?" without a word of explanation. */
+.cal-cell.in-range::before{
+  content:""; position:absolute; inset:2px 0;
+  background:rgba(207,33,42,.20);
+}
+.cal-cell.in-pkg::before{ background:rgba(201,169,97,.20); }
+.cal-cell.edge-start::before{ left:50%; }
+.cal-cell.edge-end::before{ right:50%; }
+.cal-cell.edge-start.edge-end::before{ display:none; }
+/* Plain text, not buttons: the calendar reports the dates, the steppers
+   below set them, and a day that looks pressable but is not would be worse
+   than one that plainly is not. */
+.cal-day{
+  position:relative; z-index:1;
+  width:100%; aspect-ratio:1/1;
+  display:grid; place-items:center;
+  border-radius:9px;
+  color:var(--text);
+  font-family:var(--font-body); font-size:14.5px;
+}
+.cal-day.off{ color:var(--text-faint); opacity:.55; }
+.cal-day.picked{ background:var(--accent); color:#fff; font-weight:600; }
+.cal-day.core{ color:var(--gold); }
+/* Where we do not yet hold a race's dates, the calendar keeps its place on
+   the page but says so plainly. Drawing a grid with nothing marked on it, or
+   worse the wrong month, would read as the dates rather than as the absence
+   of them. */
+/* Sits between the month name and the grid, so it is read before the dates
+   rather than after them. */
+.cal-prov{
+  margin:0 0 6px; padding:5px 10px;
+  border:1px solid var(--accent); border-radius:var(--radius-sm);
+  background:var(--accent-dim);
+  font-size:11.5px; letter-spacing:.06em; text-transform:uppercase;
+  text-align:center; color:var(--text);
+}
+.cal-pending{
+  margin:2px 0 0; padding:26px 4px 24px;
+  text-align:center; font-size:13px; line-height:1.5;
+  color:var(--text-dim);
+}
+.cal-pending b{ display:block; margin-bottom:5px; color:var(--text); font-weight:600; }
+.cal-legend{
+  display:flex; flex-wrap:wrap; justify-content:center; gap:6px 18px;
+  margin-top:13px; font-size:11.5px; color:var(--text-faint);
+}
+.cal-key{ display:flex; align-items:center; gap:7px; }
+.cal-key::before{
+  content:""; width:12px; height:12px; border-radius:3px; flex:none;
+}
+.cal-key-pkg::before{ background:rgba(201,169,97,.35); }
+.cal-key-ext::before{ background:rgba(207,33,42,.35); }
+/* Stacked, not side by side: the calendar is only 390px wide, and sharing
+   that row with the reset link wrapped the readout mid-sentence. */
+.cal-foot{
+  margin-top:12px; padding-top:12px;
+  border-top:1px solid var(--border);
+}
+.cal-read{ margin:0; text-align:center; font-size:13.5px; color:var(--text-dim); }
+.cal-read b{ color:var(--text); font-weight:600; }
+/* The steppers match the calendar's width and centre with it, so the page is
+   one centred column rather than a centred calendar over full-width controls. */
+.step[data-step="nights"] .stepper-pair{ max-width:462px; margin:0 auto; }
+/* One month at a time on a phone: two seven-column grids side by side put
+   the day cells under 20px, which is far too small to hit. */
+@media (max-width:520px){
+  .cal{ max-width:100%; padding:14px 12px 12px; }
+  .cal-day{ font-size:13.5px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .cal-nav, .cal-day{ transition:none; }
+}
