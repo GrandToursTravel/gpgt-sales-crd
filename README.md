@@ -12,7 +12,7 @@ npm run build                # production build into dist/
 npm run lint
 ```
 
-`npm run dev` also serves the `api/` functions (see `vite.config.js`), so you don't need the Vercel CLI. If `RACES_CSV_URL` isn't set, `/api/races` returns 503 and the page uses its bundled calendar. Enquiries are printed to the terminal rather than emailed.
+`npm run dev` also serves the `api/` functions (see `vite.config.js`), so you don't need the Vercel CLI. If `RACES_CSV_URL` isn't set, `/api/races` returns 503 and the page uses its bundled calendar. Unless `RESEND_API_KEY` is set, enquiries are printed to the terminal rather than emailed.
 
 Open `/#preview-done` in dev to go straight to the confirmation screen with sample answers. This is left out of production builds.
 
@@ -35,7 +35,7 @@ src/
   assets/images/         photos, globe texture, fan figures, logo
 api/
   races.js               GET  /api/races    race calendar from the Google Sheet
-  enquiry.js             POST /api/enquiry  validate, issue reference, email, HubSpot
+  enquiry.js             POST /api/enquiry  validate, issue reference, email (Resend), HubSpot
 lib/                     server-only helpers used by api/
 docs/races-sheet-template.csv   the current calendar, ready to import into the sheet
 ```
@@ -58,6 +58,16 @@ To update the bundled fallback, regenerate `src/data/fallback-races.json` from t
 
 Import the repo into Vercel. It detects Vite from `vercel.json`, serves `dist/` and deploys `api/` as functions. Set the environment variables from `.env.example`.
 
+## Email (Resend)
+
+When the customer presses Send Enquiry, `/api/enquiry` emails the enquiry to the team through Resend (`lib/email.js`). It's plain text, with the customer as Reply-To and the reference in the subject. The customer isn't sent a copy. They only see the confirmation once Resend has accepted the email; if it fails, they see the "couldn't send" message and the failure is logged with the reference.
+
+1. In Resend, add `grandprixgrandtours.com` under Domains and add the DNS records it lists (DKIM, and the MX and SPF records for the sending subdomain). Wait for it to show as verified.
+2. Create an API key with sending access.
+3. In Vercel, set `RESEND_API_KEY`, `ENQUIRY_FROM` (an address on the verified domain) and `ENQUIRY_TO` (comma-separate several recipients).
+
+Without `RESEND_API_KEY`, development and preview deploys print the email to the log instead, and production returns an error rather than a false confirmation. If you give previews a key, give them a test `ENQUIRY_TO` as well.
+
 ## HubSpot
 
 When the customer presses Send Enquiry, `/api/enquiry` submits their first name, last name, email and phone to a HubSpot form through the Forms API (`lib/hubspot.js`). HubSpot creates or updates the contact by email and runs whatever the form is set up to do.
@@ -71,7 +81,6 @@ When the customer presses Send Enquiry, `/api/enquiry` submits their first name,
 
 These are deliberately stubbed while decisions are pending:
 
-- **Email** (`lib/email.js`): no provider yet. On preview deploys the enquiry is logged; in production the endpoint returns an error, so customers see the "couldn't send" message instead of a false confirmation. **Production can't take enquiries until this is done.**
 - **Bot protection**: there's a hidden spam-trap field. Turnstile or reCAPTCHA is still a TODO in `api/enquiry.js`.
 - Tiers, inclusions, payment terms and occasions are still in `src/config.js`, not the sheet.
 - Privacy notice, cookie consent, favicon and analytics haven't been added.
