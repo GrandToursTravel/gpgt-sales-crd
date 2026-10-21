@@ -1,3 +1,4 @@
+import { isIP } from "node:net";
 import { sendEnquiryEmail } from "../lib/email.js";
 import { InvalidEnquiry, isBot, newReference, validateEnquiry } from "../lib/enquiry.js";
 import { pushToHubSpot } from "../lib/hubspot.js";
@@ -10,14 +11,39 @@ import { pushToHubSpot } from "../lib/hubspot.js";
    and is given the reference that the email carries. HubSpot is attempted
    whatever happens to the email, so the contact is captured either way; a
    HubSpot failure is logged, not shown, since the email holds the enquiry. */
-/* Where the customer was and who they are to HubSpot's tracking code. Both
-   come from the browser, so only well-formed values are passed on. */
-function trackingContext(body) {
+/* Where the customer was, who they are to HubSpot's tracking code, the ad
+   that brought them (src/attribution.js) and their IP address. Most of it
+   comes from the browser, so only well-formed values are passed on, and
+   anything else is dropped rather than refused: bad tracking data never
+   costs an enquiry. */
+const ATTRIBUTION = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "gclid", "hsa_grp"];
+const GCLID = /^[\w-]+$/;
+
+/* The customer's IP address, which HubSpot uses for the contact's location.
+   Vercel sets these headers itself, overwriting anything the browser sends,
+   so they can be trusted there. The local dev server sets neither, so
+   nothing is sent from development. */
+function clientIp(request) {
+  const header = request.headers.get("x-real-ip") || (request.headers.get("x-forwarded-for") || "").split(",")[0];
+  const ip = (header || "").trim();
+  return isIP(ip) ? ip : null;
+}
+
+function trackingContext(body, request) {
   const context = {};
+  const ip = clientIp(request);
+  if (ip) context.ipAddress = ip;
   if (typeof body.pageUri === "string" && /^https?:\/\//.test(body.pageUri) && body.pageUri.length <= 1000) {
     context.pageUri = body.pageUri;
   }
   if (typeof body.hutk === "string") context.hutk = body.hutk;
+
+  const sent = body.attribution && typeof body.attribution === "object" ? body.attribution : {};
+  context.attribution = {};
+  for (const name of ATTRIBUTION) {
+    const value = typeof sent[name] === "string" ? sent[name].replace(/\p{Cc}/gu, "").trim().slice(0, 500) : "";
+    if (value && (name !== "gclid" || GCLID.test(value))) context.attribution[name] = value;
+  }
   return context;
 }
 
@@ -49,7 +75,7 @@ export async function POST(request) {
 
   const [email, hubspot] = await Promise.allSettled([
     sendEnquiryEmail(enquiry, ref),
-    pushToHubSpot(enquiry, ref, trackingContext(body)),
+    pushToHubSpot(enquiry, ref, trackingContext(body, request)),
   ]);
 
   if (hubspot.status === "rejected") {

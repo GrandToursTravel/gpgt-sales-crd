@@ -1,3 +1,4 @@
+import { attribution } from "./attribution.js";
 import { CONTACT_EMAIL, TIERS } from "./config.js";
 import { airportLabel, airportPlace } from "./data/airports.js";
 import { $, escapeHtml } from "./dom.js";
@@ -47,6 +48,8 @@ function payload(){
        tracking code sets, if the page carries that code. */
     pageUri: location.href,
     hutk: hubspotCookie(),
+    /* UTM tags, gclid and hsa_grp from the ad that brought them here. */
+    attribution: attribution(),
     /* A field people cannot see and bots fill in. */
     website: ($("hpField") || {}).value || ""
   };

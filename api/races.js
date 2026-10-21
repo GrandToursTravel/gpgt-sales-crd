@@ -1,4 +1,4 @@
-import { loadRaces } from "../lib/races.js";
+import { loadRaces, publicRace } from "../lib/races.js";
 
 /* GET /api/races - the race calendar, as JSON, from the Google Sheet.
 
@@ -6,12 +6,13 @@ import { loadRaces } from "../lib/races.js";
    an hour however busy the form is, and an edit shows up within five minutes.
    If the sheet cannot be read, the edge keeps serving the last good copy for
    up to a day (stale-while-revalidate); past that, or before the first good
-   read, this answers with an error and the page uses its bundled calendar. */
+   read, this answers with an error and the page uses its bundled calendar.
+   The sheet's HubSpot-only columns are left out. */
 export async function GET() {
   try {
     const races = await loadRaces();
     return Response.json(
-      { races },
+      { races: races.map(publicRace) },
       { headers: { "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=86400" } },
     );
   } catch (err) {

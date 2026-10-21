@@ -9,6 +9,7 @@ import "@fontsource/manrope/700.css";
 import "@fontsource/manrope/800.css";
 import "./styles/index.css";
 
+import { captureAttribution } from "./attribution.js";
 import { loadCatalog } from "./data/catalog.js";
 import { $ } from "./dom.js";
 import { RACES, STEP_ORDER, answers, nav } from "./state.js";
@@ -24,6 +25,9 @@ import { buildTiers } from "./ui/tiers.js";
 import { DepartMenu, RaceMenu, toggleOwnFlights } from "./ui/travel-menus.js";
 import { Wishes } from "./ui/wishes.js";
 import { advance, buildProgress, clearError, refreshNav, showError, showStep } from "./wizard.js";
+
+/* Read any ad tracking values off the address before anything else runs. */
+captureAttribution();
 
 /* ---------- wire up ---------- */
 document.addEventListener("DOMContentLoaded", function(){
