@@ -1,25 +1,25 @@
-id,name,city,lat,lng,package_start,package_end,provisional,active,order,hubspot_name,event_status
-australian,Australian Grand Prix,Melbourne,-37.8497,144.968,2027-03-12,2027-03-15,TRUE,TRUE,1,,
-chinese,Chinese Grand Prix,Shanghai,31.3389,121.22,2027-04-09,2027-04-12,TRUE,TRUE,2,,
-japanese,Japanese Grand Prix,Suzuka,34.8431,136.5411,2027-04-23,2027-04-26,TRUE,TRUE,3,,
-bahrain,Bahrain Grand Prix,Sakhir,26.0325,50.5106,2027-03-19,2027-03-22,TRUE,TRUE,4,,
-saudi-arabian,Saudi Arabian Grand Prix,Jeddah,21.6319,39.1044,2027-04-02,2027-04-05,TRUE,TRUE,5,,
-miami,Miami Grand Prix,Miami,25.9581,-80.2389,2027-05-07,2027-05-10,TRUE,TRUE,6,,
-canadian,Canadian Grand Prix,Montreal,45.5,-73.5228,2027-06-18,2027-06-21,TRUE,TRUE,7,,
-monaco,Monaco Grand Prix,Monte Carlo,43.7347,7.4206,2027-05-28,2027-05-31,TRUE,TRUE,8,,
-turkish,Turkish Grand Prix,Istanbul,40.9517,29.405,2027-10-01,2027-10-04,TRUE,TRUE,9,,
-austrian,Austrian Grand Prix,Spielberg,47.2197,14.7647,2027-07-02,2027-07-05,TRUE,TRUE,10,,
-british,British Grand Prix,Silverstone,52.0733,-1.0147,2027-07-09,2027-07-12,TRUE,TRUE,11,,
-belgian,Belgian Grand Prix,Spa-Francorchamps,50.4372,5.9714,2027-08-27,2027-08-30,TRUE,TRUE,12,,
-hungarian,Hungarian Grand Prix,Budapest,47.5789,19.2486,2027-07-16,2027-07-19,FALSE,TRUE,13,,
-portuguese,Portuguese Grand Prix,Portimão,37.2272,-8.6267,2027-10-08,2027-10-11,TRUE,TRUE,14,,
-italian,Italian Grand Prix,Monza,45.6156,9.2811,2027-09-03,2027-09-06,TRUE,TRUE,15,,
-spanish,Spanish Grand Prix,Barcelona,41.57,2.2611,2027-06-11,2027-06-14,TRUE,TRUE,16,,
-azerbaijan,Azerbaijan Grand Prix,Baku,40.3725,49.8533,2027-09-17,2027-09-20,TRUE,TRUE,17,,
-singapore,Singapore Grand Prix,Marina Bay,1.2914,103.864,2027-09-24,2027-09-27,TRUE,TRUE,18,,
-united-states,United States Grand Prix,Austin,30.1328,-97.6411,2027-10-15,2027-10-18,TRUE,TRUE,19,,
-mexico-city,Mexico City Grand Prix,Mexico City,19.4042,-99.0907,2027-10-22,2027-10-25,TRUE,TRUE,20,,
-sao-paulo,São Paulo Grand Prix,Interlagos,-23.7036,-46.6997,2027-11-05,2027-11-08,TRUE,TRUE,21,,
-las-vegas,Las Vegas Grand Prix,Las Vegas,36.1147,-115.1728,2027-11-19,2027-11-22,TRUE,TRUE,22,,
-qatar,Qatar Grand Prix,Lusail,25.49,51.4542,2027-11-26,2027-11-29,TRUE,TRUE,23,,
-abu-dhabi,Abu Dhabi Grand Prix,Yas Marina,24.4672,54.6031,2027-12-03,2027-12-06,TRUE,TRUE,24,,
+id,name,city,lat,lng,package_start,package_end,provisional,active,order
+australian,Australian Grand Prix,Melbourne,-37.8497,144.968,2027-03-12,2027-03-15,TRUE,TRUE,1
+chinese,Chinese Grand Prix,Shanghai,31.3389,121.22,2027-04-09,2027-04-12,TRUE,TRUE,2
+japanese,Japanese Grand Prix,Suzuka,34.8431,136.5411,2027-04-23,2027-04-26,TRUE,TRUE,3
+bahrain,Bahrain Grand Prix,Sakhir,26.0325,50.5106,2027-03-19,2027-03-22,TRUE,TRUE,4
+saudi-arabian,Saudi Arabian Grand Prix,Jeddah,21.6319,39.1044,2027-04-02,2027-04-05,TRUE,TRUE,5
+miami,Miami Grand Prix,Miami,25.9581,-80.2389,2027-05-07,2027-05-10,TRUE,TRUE,6
+canadian,Canadian Grand Prix,Montreal,45.5,-73.5228,2027-06-18,2027-06-21,TRUE,TRUE,7
+monaco,Monaco Grand Prix,Monte Carlo,43.7347,7.4206,2027-05-28,2027-05-31,TRUE,TRUE,8
+turkish,Turkish Grand Prix,Istanbul,40.9517,29.405,2027-10-01,2027-10-04,TRUE,TRUE,9
+austrian,Austrian Grand Prix,Spielberg,47.2197,14.7647,2027-07-02,2027-07-05,TRUE,TRUE,10
+british,British Grand Prix,Silverstone,52.0733,-1.0147,2027-07-09,2027-07-12,TRUE,TRUE,11
+belgian,Belgian Grand Prix,Spa-Francorchamps,50.4372,5.9714,2027-08-27,2027-08-30,TRUE,TRUE,12
+hungarian,Hungarian Grand Prix,Budapest,47.5789,19.2486,2027-07-16,2027-07-19,FALSE,TRUE,13
+portuguese,Portuguese Grand Prix,Portimão,37.2272,-8.6267,2027-10-08,2027-10-11,TRUE,TRUE,14
+italian,Italian Grand Prix,Monza,45.6156,9.2811,2027-09-03,2027-09-06,TRUE,TRUE,15
+spanish,Spanish Grand Prix,Barcelona,41.57,2.2611,2027-06-11,2027-06-14,TRUE,TRUE,16
+azerbaijan,Azerbaijan Grand Prix,Baku,40.3725,49.8533,2027-09-17,2027-09-20,TRUE,TRUE,17
+singapore,Singapore Grand Prix,Marina Bay,1.2914,103.864,2027-09-24,2027-09-27,TRUE,TRUE,18
+united-states,United States Grand Prix,Austin,30.1328,-97.6411,2027-10-15,2027-10-18,TRUE,TRUE,19
+mexico-city,Mexico City Grand Prix,Mexico City,19.4042,-99.0907,2027-10-22,2027-10-25,TRUE,TRUE,20
+sao-paulo,São Paulo Grand Prix,Interlagos,-23.7036,-46.6997,2027-11-05,2027-11-08,TRUE,TRUE,21
+las-vegas,Las Vegas Grand Prix,Las Vegas,36.1147,-115.1728,2027-11-19,2027-11-22,TRUE,TRUE,22
+qatar,Qatar Grand Prix,Lusail,25.49,51.4542,2027-11-26,2027-11-29,TRUE,TRUE,23
+abu-dhabi,Abu Dhabi Grand Prix,Yas Marina,24.4672,54.6031,2027-12-03,2027-12-06,TRUE,TRUE,24

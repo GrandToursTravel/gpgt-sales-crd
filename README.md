@@ -42,7 +42,7 @@ docs/races-sheet-template.csv   the current calendar, ready to import into the s
 
 ## Race calendar (Google Sheet)
 
-1. Import `docs/races-sheet-template.csv` into a new Google Sheet tab. Keep the column headers exactly as they are; `lib/races.js` lists what each column means. The `hubspot_name` and `event_status` columns are for HubSpot only (see below) and are never sent to the browser.
+1. Import `docs/races-sheet-template.csv` into a new Google Sheet tab. Keep the column headers exactly as they are; `lib/races.js` lists what each column means.
 2. Go to File → Share → Publish to web. Choose **that tab only** and **CSV**, then copy the link.
 3. In Vercel, set `RACES_CSV_URL` to that link (Project → Settings → Environment Variables).
 
@@ -80,7 +80,7 @@ When the customer presses Send Enquiry, `/api/enquiry` submits their first name,
 
 Each submission also fills these hidden fields on the form. A blank value is left out. The server reads the form's definition through the Marketing Forms API (`lib/hubspot-form.js`) and checks each value against it first. A field that isn't on the form, or a dropdown value that isn't one of its options, is left out and logged with the reference, so the rest of the contact still gets through.
 
-- **Event** and **Event status** come from the race's `hubspot_name` and `event_status` columns in the race sheet. The server looks them up by race id, so they always come from the live sheet. If either property is a dropdown in HubSpot, the sheet value must match an option value exactly, or it's left out. The internal property names are set at the top of `lib/hubspot.js`.
+- **event_whatsapp_submission** gets the race's name as the form shows it, such as "Hungarian Grand Prix". It's left out when the customer picks "Not sure yet". If the property is a dropdown in HubSpot, each race name must match an option value exactly, or it's left out. The property name is set at the top of `lib/hubspot.js`.
 - **utm_source, utm_medium, utm_campaign, utm_term, gclid and hsa_grp** come from the address the customer landed on (`src/attribution.js`). Attribution is last touch: a visit with any of them replaces the saved set, which the browser keeps for 90 days.
 - **Acquiring Domain, Lead channel and Intent**, and any other hidden field with a default value, are sent with the default set on the form. HubSpot doesn't apply defaults to API submissions itself. A changed default is picked up within ten minutes, with no deploy.
 
