@@ -7,8 +7,9 @@ import { RACES, RACE_DATES } from "../state.js";
    the snapshot bundled at build time, which is the last calendar committed to
    the repo. A customer never sees an empty race list.
 
-   Each row: { id, name, city, lat, lng, packageStart, packageEnd, provisional,
-   order }, with dates as YYYY-MM-DD or null where we hold none yet. */
+   Each row: { id, name, hubspotName, city, lat, lng, packageStart, packageEnd,
+   provisional, order }, with dates as YYYY-MM-DD or null where we hold none
+   yet, and hubspotName null where the sheet leaves it blank. */
 var TIMEOUT_MS = 6000;
 
 function fetchRaces(){
@@ -41,7 +42,7 @@ function apply(rows){
   Object.keys(RACE_DATES).forEach(function(k){ delete RACE_DATES[k]; });
   rows.slice().sort(function(a, b){ return (a.order || 0) - (b.order || 0); })
     .forEach(function(r){
-      RACES.push({ id: r.id, name: r.name, city: r.city, lat: r.lat, lng: r.lng });
+      RACES.push({ id: r.id, name: r.name, hubspotName: r.hubspotName || null, city: r.city, lat: r.lat, lng: r.lng });
       var from = ymd(r.packageStart), to = ymd(r.packageEnd);
       if(from && to) RACE_DATES[r.id] = { from: from, to: to, provisional: !!r.provisional };
     });

@@ -23,6 +23,7 @@ export var RaceMenu = makeCombo({
   choose: function(r){
     answers.race = r.name;
     answers.raceId = r.id;
+    answers.raceHubspotName = r.hubspotName || null;
     answers.raceLat = r.lat; answers.raceLng = r.lng;
     Globe.flyTo(r.lat, r.lng, r.name, r.city);
   }

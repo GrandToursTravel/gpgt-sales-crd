@@ -3,7 +3,7 @@
    binding cannot be. */
 export var answers = {
   firstName:"", lastName:"", phone:"", phoneCountry:"GB", email:"",
-  race:null, raceId:null, raceLat:null, raceLng:null, depart:null, ownFlights:false,
+  race:null, raceId:null, raceHubspotName:null, raceLat:null, raceLng:null, depart:null, ownFlights:false,
   tier:null, adults:1, minors:0,
   roomCounts:{ "Double":1, "Twin":0, "Triple":0 },
   extraBefore:0, extraAfter:0,

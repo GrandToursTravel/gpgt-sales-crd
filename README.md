@@ -82,7 +82,7 @@ The phone number is always in E.164 format, such as `+447400123456`, in HubSpot 
 
 Each submission also fills these hidden fields on the form. A blank value is left out. The server reads the form's definition through the Marketing Forms API (`lib/hubspot-form.js`) and checks each value against it first. A field that isn't on the form, or a dropdown value that isn't one of its options, is left out and logged with the reference, so the rest of the contact still gets through.
 
-- **event_whatsapp_submission** gets the race's name as the form shows it, such as "Hungarian Grand Prix". It's left out when the customer picks "Not sure yet". If the property is a dropdown in HubSpot, each race name must match an option value exactly, or it's left out. The property name is set at the top of `lib/hubspot.js`.
+- **event_whatsapp_submission** gets the race's `hubspot-name` from the race sheet. Where that cell is blank, it gets the race's name as the form shows it, such as "Hungarian Grand Prix". It's left out when the customer picks "Not sure yet". If the property is a dropdown in HubSpot, the value must match one of its option values exactly, or it's left out. The property name is set at the top of `lib/hubspot.js`.
 - **utm_source, utm_medium, utm_campaign, utm_term, gclid and hsa_grp** come from the address the customer landed on (`src/attribution.js`). Attribution is last touch: a visit with any of them replaces the saved set, which the browser keeps for 90 days.
 - **Acquiring Domain, Lead channel and Intent**, and any other hidden field with a default value, are sent with the default set on the form. HubSpot doesn't apply defaults to API submissions itself. A changed default is picked up within ten minutes, with no deploy.
 

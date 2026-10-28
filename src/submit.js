@@ -25,6 +25,7 @@ function payload(){
     email: answers.email,
     race: answers.race,
     raceId: answers.raceId,
+    raceHubspotName: answers.raceHubspotName,
     flyingFrom: answers.ownFlights ? "Arranging their own flights"
       : (answers.depart ? airportLabel(answers.depart) + " (" + airportPlace(answers.depart) + ")" : ""),
     departCode: answers.ownFlights || !answers.depart ? null : answers.depart.code,
