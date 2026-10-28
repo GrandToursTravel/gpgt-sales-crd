@@ -12,6 +12,7 @@
   "dependencies": {
     "@fontsource/manrope": "5.2.8",
     "@fontsource/oswald": "5.2.8",
+    "libphonenumber-js": "1.13.15",
     "papaparse": "5.5.3"
   },
   "devDependencies": {

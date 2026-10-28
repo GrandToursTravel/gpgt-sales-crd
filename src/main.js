@@ -19,6 +19,7 @@ import { EARTH_TEX, Globe } from "./ui/globe.js";
 import { Metal } from "./ui/metal.js";
 import { renderParty } from "./ui/party.js";
 import { Pay } from "./ui/payment.js";
+import { Phone } from "./ui/phone.js";
 import { buildRoomRows } from "./ui/rooms.js";
 import { bindStepper } from "./ui/stepper.js";
 import { buildTiers } from "./ui/tiers.js";
@@ -93,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
   $("firstNameInput").addEventListener("input", function(e){ answers.firstName = e.target.value; refreshNav(); clearError("firstName"); });
   $("lastNameInput").addEventListener("input", function(e){ answers.lastName = e.target.value; refreshNav(); clearError("lastName"); });
-  $("phoneInput").addEventListener("input", function(e){ answers.phone = e.target.value; refreshNav(); clearError("phone"); });
+  Phone.init();
   $("emailInput").addEventListener("input", function(e){ answers.email = e.target.value; refreshNav(); clearError("email"); });
 
   ["firstName","lastName","phone","email"].forEach(function(key){

@@ -7,6 +7,7 @@ import { Globe } from "./ui/globe.js";
 import { Metal } from "./ui/metal.js";
 import { partySummary, renderParty } from "./ui/party.js";
 import { Pay } from "./ui/payment.js";
+import { Phone } from "./ui/phone.js";
 import { bedSummary, roomsSummary, roomsTotal } from "./ui/rooms.js";
 import { Wishes } from "./ui/wishes.js";
 
@@ -26,7 +27,7 @@ export function isValid(stepKey){
   switch(stepKey){
     case "firstName": return answers.firstName.trim().length > 1;
     case "lastName": return answers.lastName.trim().length > 1;
-    case "phone": return answers.phone.trim().length > 3;
+    case "phone": return Phone.isValid();
     case "email": return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(answers.email.trim());
     case "race": return !!answers.race;
     case "depart": return answers.ownFlights || !!answers.depart;
@@ -47,7 +48,7 @@ export function isValid(stepKey){
 var ERROR_MESSAGES = {
   firstName: "Enter your first name so we know who's asking.",
   lastName: "Enter your last name for the booking.",
-  phone: "Enter a phone number we can reach you on.",
+  phone: "Enter a valid phone number for the country code you've chosen.",
   email: "Enter a valid email address, like you@example.com."
 };
 
@@ -98,8 +99,11 @@ export function showStep(idx){
   refreshNav();
 
   /* The two search steps are left unfocused on purpose: focusing them opens
-     their dropdown, which covers the globe before anyone has asked for it. */
-  var firstField = panel.querySelector("input, select");
+     their dropdown, which covers the globe before anyone has asked for it.
+     A field marked data-autofocus goes ahead of the first one - the phone
+     number does, past the country code in front of it, which is already
+     right for most people. */
+  var firstField = panel.querySelector("[data-autofocus]") || panel.querySelector("input, select");
   if(firstField && key !== "race" && key !== "depart" && key !== "tier"){
     firstField.focus({preventScroll:true});
   }
@@ -131,7 +135,7 @@ function renderSummary(){
   var rows = [
     ["First name", answers.firstName, "firstName"],
     ["Last name", answers.lastName, "lastName"],
-    ["Phone", answers.phone, "phone"],
+    ["Phone", Phone.summary(), "phone"],
     ["Email", answers.email, "email"],
     ["Race", answers.race, "race"],
     ["Flying from", answers.ownFlights ? "Arranging their own flights"

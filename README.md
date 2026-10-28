@@ -72,6 +72,8 @@ Without `RESEND_API_KEY`, development and preview deploys print the email to the
 
 When the customer presses Send Enquiry, `/api/enquiry` submits their first name, last name, email and phone to a HubSpot form through the Forms API (`lib/hubspot.js`). HubSpot creates or updates the contact by email and runs whatever the form is set up to do.
 
+The phone number is always in E.164 format, such as `+447400123456`, in HubSpot and in the email. The customer picks a country code (the UK by default) and types the number however they like. The browser and `/api/enquiry` both check it with `libphonenumber-js` and accept only numbers that are valid for their country. That rejects Ofcom's 07700 900xxx drama numbers, so test with a real-format number instead.
+
 - Set `HUBSPOT_PORTAL_ID`, `HUBSPOT_FORM_ID` and `HUBSPOT_TOKEN`, a private-app token with the `forms` scope. Without the ids, HubSpot is skipped. Without the token, contacts are still sent, but without the form's default values and without the checks below.
 - HubSpot runs alongside the email, not after it, so the contact is captured even if the email fails. A HubSpot failure is logged with the enquiry reference and isn't shown to the customer.
 - Give preview deploys a test form's ID, so test enquiries don't create real contacts.

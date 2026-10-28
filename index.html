@@ -74,7 +74,13 @@
       <p class="sub">For a quick call if we need to check anything.</p>
       <div class="field">
         <label class="field-label" for="phoneInput">Phone number</label>
-        <input type="tel" id="phoneInput" placeholder="+44 …" autocomplete="tel" aria-describedby="phoneErr">
+        <div class="phone-row">
+          <div class="phone-cc">
+            <span class="phone-cc-face" id="phoneCountryFace" aria-hidden="true">+44</span>
+            <select id="phoneCountry" aria-label="Country code"></select>
+          </div>
+          <input type="tel" id="phoneInput" placeholder="07400 123456" autocomplete="tel" aria-describedby="phoneErr" data-autofocus>
+        </div>
         <p class="err" id="phoneErr" aria-live="polite"></p>
       </div>
     </div>

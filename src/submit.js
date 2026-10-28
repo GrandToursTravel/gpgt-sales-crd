@@ -7,6 +7,7 @@ import { Cal } from "./ui/calendar.js";
 import { Metal } from "./ui/metal.js";
 import { partySummary } from "./ui/party.js";
 import { Pay } from "./ui/payment.js";
+import { Phone } from "./ui/phone.js";
 import { bedSummary, roomsSummary } from "./ui/rooms.js";
 import { metalVars } from "./ui/tiers.js";
 import { Wishes } from "./ui/wishes.js";
@@ -20,7 +21,7 @@ function payload(){
   return {
     firstName: answers.firstName,
     lastName: answers.lastName,
-    phone: answers.phone,
+    phone: Phone.e164(),
     email: answers.email,
     race: answers.race,
     raceId: answers.raceId,

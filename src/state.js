@@ -2,7 +2,7 @@
    module, so it is mutated in place and never reassigned - an imported
    binding cannot be. */
 export var answers = {
-  firstName:"", lastName:"", phone:"", email:"",
+  firstName:"", lastName:"", phone:"", phoneCountry:"GB", email:"",
   race:null, raceId:null, raceLat:null, raceLng:null, depart:null, ownFlights:false,
   tier:null, adults:1, minors:0,
   roomCounts:{ "Double":1, "Twin":0, "Triple":0 },
