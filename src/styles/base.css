@@ -56,7 +56,7 @@ body{
   position:relative; z-index:1;
   max-width:820px;
   margin:0 auto;
-  padding:36px 20px 80px;
+  padding:36px 20px 0px;
 }
 /* Only three things are held back from the new width, and each for a reason:
    prose needs a readable measure, a single-line text box looks absurd at

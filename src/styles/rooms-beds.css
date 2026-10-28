@@ -142,4 +142,8 @@
   font-weight:700; font-size:17px;
 }
 .stepper-pair{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+/* Here the stepper sits in a plain block rather than a flex row, so left to
+   itself it stretches to the column and the pill runs on past the plus
+   button. Sized to its buttons instead, as it is everywhere else. */
+.stepper-pair .stepper{ width:max-content; }
 @media (max-width:420px){ .stepper-pair{ grid-template-columns:1fr; } }
