@@ -98,6 +98,13 @@ export function showStep(idx){
   if(key === "wishes"){ Wishes.sync(); }
   refreshNav();
 
+  /* Start every step at the top. The Continue button sits below the fields,
+     so without this the next step opens part-way down the page. The body
+     rather than the card, so the gap above the card isn't scrolled away; and
+     scrollIntoView rather than window.scrollTo, so an embedding page scrolls
+     too, as it has to for the confirmation card. */
+  document.body.scrollIntoView({block:"start"});
+
   /* The two search steps are left unfocused on purpose: focusing them opens
      their dropdown, which covers the globe before anyone has asked for it.
      A field marked data-autofocus goes ahead of the first one - the phone
