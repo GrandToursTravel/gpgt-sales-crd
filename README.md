@@ -56,7 +56,7 @@ To update the bundled fallback, regenerate `src/data/fallback-races.json` from t
 
 ## Deploying to Vercel
 
-Import the repo into Vercel. It detects Vite from `vercel.json`, serves `dist/` and deploys `api/` as functions. Set the environment variables from `.env.example`.
+Import the repo into Vercel. It detects Vite from `vercel.json`, serves `dist/` and deploys `api/` as functions. Set the environment variables from `.env.example`. `VITE_BOOKING_URL` (the "Talk it through" link) is built into the page, so redeploy after changing it.
 
 ## Email (Resend)
 

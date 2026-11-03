@@ -31,7 +31,10 @@ export var TIER_INCLUDED = [
 export var TIER_STAND_RATING = { "Bronze": 4, "Silver": 4.5, "Gold": 5 };
 
 export var UNSURE = "Not sure yet, help me choose";
-export var BOOKING_URL = "https://meetings.hubspot.com/luke-gould";
+/* Where "Talk it through" on the tier step goes. Vite builds it into the page
+   from VITE_BOOKING_URL, so a change needs a rebuild. Unset, the link is left
+   out and the row keeps only its "Help me choose" button. */
+export var BOOKING_URL = (import.meta.env.VITE_BOOKING_URL || "").trim();
 
 /* Shown to the customer only if sending fails, as somewhere to go instead.
    Enquiries themselves are routed on the server, not from here. */

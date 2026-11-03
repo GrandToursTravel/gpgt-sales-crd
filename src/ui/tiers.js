@@ -99,7 +99,7 @@ export function buildTiers(){
     grid.appendChild(card);
   });
   /* This row holds two controls, so unlike the tier cards it is a plain
-     container rather than a button: "Talk it through" opens Luke's booking
+     container rather than a button: "Talk it through" opens the booking
      page, and an anchor inside a button would be a keyboard trap. Either
      control records the same answer, so someone who books a call still has a
      complete enquiry to send. */
@@ -114,18 +114,23 @@ export function buildTiers(){
   pick.innerHTML = '<span class="name">Not sure yet? Help me choose</span>';
   pick.addEventListener("click", function(){ selectTier(UNSURE, unsure); });
 
-  var book = document.createElement("a");
-  book.className = "cta cta-link";
-  book.href = BOOKING_URL;
-  book.target = "_blank";
-  book.rel = "noopener noreferrer";
-  book.textContent = "Talk it through";
-  book.setAttribute("aria-label", "Talk it through - book a call, opens in a new tab");
-  /* Record the answer before the new tab takes over. */
-  book.addEventListener("click", function(){ selectTier(UNSURE, unsure); });
-
   unsure.appendChild(pick);
-  unsure.appendChild(book);
+
+  /* No booking page configured (VITE_BOOKING_URL unset): leave the link out
+     rather than point it nowhere. */
+  if(BOOKING_URL){
+    var book = document.createElement("a");
+    book.className = "cta cta-link";
+    book.href = BOOKING_URL;
+    book.target = "_blank";
+    book.rel = "noopener noreferrer";
+    book.textContent = "Talk it through";
+    book.setAttribute("aria-label", "Talk it through - book a call, opens in a new tab");
+    /* Record the answer before the new tab takes over. */
+    book.addEventListener("click", function(){ selectTier(UNSURE, unsure); });
+    unsure.appendChild(book);
+  }
+
   grid.appendChild(unsure);
 }
 function selectTier(name, el){
