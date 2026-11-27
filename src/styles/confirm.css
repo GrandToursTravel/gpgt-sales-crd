@@ -180,4 +180,8 @@
   letter-spacing:.02em; font-size:13.5px; color:var(--text-faint);
 }
 
-[data-fade]{ animation:fadeIn .32s ease both; }
+/* backwards, not both: the last keyframe is just the element's own style, so
+   holding it changes nothing on screen - but a held transform keeps the step
+   a stacking context for good, and that buried the race and airport menus
+   under the nav row whenever it was pinned over them. */
+[data-fade]{ animation:fadeIn .32s ease backwards; }

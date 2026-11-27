@@ -13,7 +13,7 @@
 .search-input::placeholder{ color:var(--text-faint); }
 .search-input:focus{ outline:none; border-color:var(--accent); }
 
-.globe-col{ margin-top:22px; }
+.globe-col{ margin-top:12px; }
 /* The globe is a single canvas shared by two steps, so it is parked in
    whichever slot belongs to the step on screen. Rebuilding it per step would
    mean two lookup tables and two copies of the texture in memory. */
@@ -26,7 +26,7 @@
 .globe-sky{
   position:relative;
   margin:0 -32px;
-  padding:30px 0 14px;
+  padding:14px 0 6px;
   --sky-photo:url("../assets/images/globe-sky.webp");
 }
 /* The night sky is a photograph, vignetted into the card colour rather than
@@ -59,7 +59,7 @@
   margin:0 auto;
   aspect-ratio:1/1;
 }
-@media (max-width:520px){ .globe-sky{ margin:0 -18px; padding:22px 0 10px; } }
+@media (max-width:520px){ .globe-sky{ margin:0 -18px; } }
 .globe-wrap canvas{ width:100%; height:100%; display:block; }
 .globe-pin{
   position:absolute; width:34px; height:34px; margin:-17px 0 0 -17px;
@@ -103,7 +103,7 @@
 }
 
 .globe-caption{
-  margin:14px 0 0; text-align:center;
+  margin:8px 0 0; text-align:center;
   font-size:13px; color:var(--text-faint); line-height:1.4;
   min-height:38px;
 }
@@ -146,4 +146,24 @@
   .globe-wrap{ max-width:100%; }
   .globe-caption{ font-size:12.5px; }
   .globe-caption b{ font-size:15px; }
+}
+
+/* The globe always fills the width; on a short screen it is the height that
+   gives way before the step runs past the fold (see --room in wizard.css).
+   The planet is drawn to the width, so in a box shorter than it is wide it
+   runs past the top and bottom and fades into the sky there (globe.js). The
+   aspect-ratio above is only a ceiling now: never taller than wide, which is
+   all the room a planet that wide needs. The width is stated outright for
+   the same reason as the photos' (see step-media.css): left auto, an
+   aspect-ratio box narrows itself to keep its shape under a max-height.
+
+   Each figure is everything else on the step - more on a phone, where the
+   text wraps, and more on the departure step, which has the own-flights
+   option as well. 200px is as short as it goes: the race's flag stands
+   about 80px above its marker, and much below that the view is all flag. */
+.globe-wrap{ max-height:max(200px, calc(var(--room) - 199px)); }
+.step[data-step="depart"] .globe-wrap{ max-height:max(200px, calc(var(--room) - 256px)); }
+@media (max-width:520px){
+  .globe-wrap{ max-height:max(200px, calc(var(--room) - 219px)); }
+  .step[data-step="depart"] .globe-wrap{ max-height:max(200px, calc(var(--room) - 308px)); }
 }

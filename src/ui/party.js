@@ -60,8 +60,8 @@ var nextAdultKit = makeBag(FANS_ADULT);
 var nextKidKit = makeBag(FANS_KID);
 
 /* Most figures ever drawn, the smallest an adult is drawn at, and the width
-   the "+N" chip needs when the party outgrows the row. The largest size comes
-   from --fig-max in the stylesheet so it can change with the breakpoint. */
+   the "+N" chip needs when the party outgrows the row. The largest size is
+   left to the stylesheet (--fig-max), which caps each figure itself. */
 var FIG_CAP = 14, FIG_MIN = 38, CHIP_W = 52;
 /* Kept in step with the .is-kid height in the stylesheet: the ratio between
    the two figures in the sheet Luke supplied. */
@@ -100,7 +100,6 @@ export function renderParty(){
   var cs = getComputedStyle(host);
   var W = host.clientWidth || 300;
   var gap = parseFloat(cs.columnGap) || 12;
-  var FIG_MAX = parseFloat(cs.getPropertyValue("--fig-max")) || 96;
   var KA = 165 / 452, KK = KID_SCALE * (125 / 308);
   var a = answers.adults, m = answers.minors, total = a + m;
 
@@ -108,7 +107,7 @@ export function renderParty(){
      hold back a couple of pixels rather than filling it exactly. */
   function heightFor(na, nk, withChip){
     var denom = KA * na + KK * nk;
-    if(denom <= 0) return FIG_MAX;
+    if(denom <= 0) return FIG_MIN;
     var avail = W - gap * (na + nk - 1) - (withChip ? CHIP_W + gap : 0) - 4;
     return Math.floor(avail / denom);
   }
@@ -130,7 +129,12 @@ export function renderParty(){
   }
 
   var shown = showA + showM;
-  var h = Math.max(FIG_MIN, Math.min(FIG_MAX, heightFor(showA, showM, chipped)));
+  /* The height the row's width allows, with no upper limit: the stylesheet
+     caps each figure at --fig-max, which follows the screen's height. Capping
+     it here instead would mean reading the cap back on resize, and the resize
+     event arrives a frame or two before a new height reaches svh - the
+     figures were being fitted to the screen it had just been. */
+  var h = Math.max(FIG_MIN, heightFor(showA, showM, chipped));
   host.style.setProperty("--fig-h", h + "px");
   function fit(group, want, nextKit){
     var live = group.querySelectorAll(".party-slot:not(.is-out)");

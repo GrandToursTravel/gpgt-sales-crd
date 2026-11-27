@@ -108,6 +108,22 @@ document.addEventListener("DOMContentLoaded", function(){
     });
   });
 
+  /* The nav row is sticky (see .nav-row): mark when it is actually pinned to
+     the foot of the screen rather than resting in its own place, so it can
+     draw a rule along its top. Pinned, it hangs 1px past the bottom edge,
+     which is the only time it is ever less than fully on screen. Both
+     thresholds are needed: with 1 alone, Chrome counts "hidden" and "all
+     but 1px showing" as the same state, so the wizard opening on a step
+     that is already too tall never reported in. */
+  var navRow = $("navRow");
+  if("IntersectionObserver" in window){
+    new IntersectionObserver(function(entries){
+      var e = entries[entries.length - 1];
+      navRow.classList.toggle("is-pinned",
+        e.isIntersecting && e.intersectionRatio < 1 && e.boundingClientRect.top > 0);
+    }, { threshold:[0, 1] }).observe(navRow);
+  }
+
   $("nextBtn").addEventListener("click", advance);
   $("backBtn").addEventListener("click", function(){
     if(nav.returnToReview){

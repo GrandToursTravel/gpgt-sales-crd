@@ -41,8 +41,9 @@ export var EARTH_TEX = earthTexture;
 export var Globe = (function(){
   var TAU = Math.PI*2, D2R = Math.PI/180;
   var TILT = 0.26;                     /* ~15 degrees, favouring the north */
-  var RF = 0.45;                       /* sphere radius as a fraction of the box */
+  var RF = 0.45;                       /* sphere radius as a fraction of the box's width */
   var ZOOM = 2.05;                     /* how close the country gets */
+  var ZOOM_MIN = 0.2;                  /* how far out a long route may pull */
   var PIXEL_BUDGET = 750000;
   var IDLE_SPIN = 0.055;               /* radians a second, while nothing is chosen */
   /* Sequential, not overlapping: out, round, in. Trimmed a little from the
@@ -60,9 +61,12 @@ export var Globe = (function(){
      sets off again - the pause is what makes it read as a repeated flight
      rather than a bead going round a loop. */
   var planeT = 0, PLANE_SECS = 7.5;
-  var raf = null, size = 0, dpr = 1, reduced = false, alive = false;
+  /* W and H are the box. It is not square: it always fills the width, and on
+     a short screen it is less tall than that, so a planet sized to the width
+     runs past its top and bottom. */
+  var raf = null, W = 0, H = 0, dpr = 1, reduced = false, alive = false;
   var labelW = 0, wasBelow = null;
-  var lastPx = -1, lastPy = -1, lastLx = -1, lastStem = -1, lastOp = -1;
+  var lastPx = -1, lastPy = -1, lastLx = -1, lastStem = -1, lastOp = -1, lastVis = null;
 
   function unit(lat,lng){
     var la = lat*D2R, ln = lng*D2R, cl = Math.cos(la);
@@ -114,24 +118,28 @@ export var Globe = (function(){
     return s > PAN_CAP ? PAN_CAP : (s < -PAN_CAP ? -PAN_CAP : s);
   }
 
-  /* How far in we can go and still hold the arc on screen. */
+  /* How far in we can go and still hold the arc on screen - or how far out:
+     in a box much wider than it is tall, the planet at its full width is
+     taller than the box, and a long-haul arc only fits once it is smaller
+     than that. The box is not square, so width and height are fitted
+     separately. */
   function fitZoom(arc, centreY){
     var l0 = arc.midLng*D2R;
     var C0 = Math.cos(l0), S0 = Math.sin(l0);
     var ct = Math.cos(TILT), st = Math.sin(TILT);
-    var worst = 0.02;
+    var wx = 0.02, wy = 0.02;
     for(var i=0;i<=arc.n;i++){
       var x = arc.pts[i*3], y = arc.pts[i*3+1], z = arc.pts[i*3+2];
-      var X = z*C0 - x*S0, H = x*C0 + z*S0;
-      var Y = ct*y - st*H;
-      var dy = Y - centreY;
-      var d = Math.sqrt(X*X + dy*dy);
-      if(d > worst) worst = d;
+      var X = z*C0 - x*S0, Hz = x*C0 + z*S0;
+      var dy = ct*y - st*Hz - centreY;
+      if(Math.abs(X) > wx) wx = Math.abs(X);
+      if(Math.abs(dy) > wy) wy = Math.abs(dy);
     }
-    /* 0.5 of the box is the edge; RF of it is the radius at zoom 1; leave a
+    /* 0.5 of the box is the edge; W*RF is the radius at zoom 1; leave a
        margin for the flag that sits above the marker. */
-    var z2 = (0.42/RF) / worst;
-    if(z2 < 1) z2 = 1;
+    var R1 = W*RF;
+    var z2 = Math.min(0.42*W / (R1*wx), 0.42*H / (R1*wy));
+    if(z2 < ZOOM_MIN) z2 = ZOOM_MIN;
     if(z2 > 2.4) z2 = 2.4;
     return z2;
   }
@@ -143,35 +151,51 @@ export var Globe = (function(){
     return d;
   }
 
-  /* The whole globe, centred and unzoomed. Any zoom between this and the
-     close-up is a scale of it, so a table built here is never short of
-     geometry. */
-  function wideView(){ return { R:size*RF, cx:size/2, cy:size/2 }; }
+  /* The whole globe, centred and unzoomed, and the table for it is built for
+     the whole sphere - not just the part inside the box, which on a short
+     screen is a band across the middle. A flight pans and zooms over this
+     table, and any view between it and the close-up is a scale of it, so
+     it is never short of geometry: built for the band alone, flying to
+     Silverstone panned the north into view before it had been drawn. */
+  function wideView(){ return { R:W*RF, cx:W/2, cy:H/2, whole:true }; }
 
   /* The sphere as it should appear right now: radius, and where its centre
      sits once the view has panned to put the chosen country in the middle. */
   function view(){
-    var R = size*RF*zoom;
+    var R = W*RF*zoom;
     /* panSy is kept after the target is cleared, so pulling back out slides
        to the middle instead of jumping there. */
-    return { R:R, cx:size/2, cy:size/2 + pan*panSy*R };
+    return { R:R, cx:W/2, cy:H/2 + pan*panSy*R };
+  }
+
+  /* A table built for the whole sphere costs more per frame than one for the
+     box, so once the view stops moving it is swapped for one that is not,
+     whenever the box is cutting part of the sphere off. */
+  function clipped(v){
+    return v.cy - v.R < 0 || v.cy + v.R > H || v.cx - v.R < 0 || v.cx + v.R > W;
   }
 
   /* Every pixel of the disc is remapped by hand each frame, so cost grows
      with the area actually on screen. Trade a little sharpness for the frame
      rate, and only at the sizes where it would otherwise hurt. */
-  function chooseDpr(R){
-    var visible = Math.min(Math.PI*R*R, size*size);
+  function chooseDpr(v){
+    var disc = Math.PI*v.R*v.R;
+    var visible = v.whole ? disc : Math.min(disc, W*H);
     var d = Math.min(window.devicePixelRatio || 1, 2);
     var cap = Math.sqrt(PIXEL_BUDGET / visible);
     if(d > cap) d = cap;
     return d < 1 ? 1 : d;
   }
 
-  /* One asin and one atan2 per pixel, paid once per view. */
+  /* One asin and one atan2 per pixel, paid once per view. The table has a
+     frame of its own: the box, or for a whole view the square round the
+     sphere, which on a short screen reaches past the box top and bottom. */
   function buildLut(v){
-    dpr = chooseDpr(v.R);
-    var Wd = Math.round(size*dpr), Hd = Wd;
+    dpr = chooseDpr(v);
+    var ox = v.whole ? v.cx - v.R : 0, oy = v.whole ? v.cy - v.R : 0;
+    var Wd = Math.round((v.whole ? 2*v.R : W)*dpr);
+    var Hd = Math.round((v.whole ? 2*v.R : H)*dpr);
+    var cx = v.cx - ox, cy = v.cy - oy;          /* the centre, in the frame */
     var ct = Math.cos(TILT), st = Math.sin(TILT);
     var cap = Math.min(Math.ceil(Math.PI*v.R*v.R*dpr*dpr), Wd*Hd) + Hd*2 + 16;
     var u = new Float32Array(cap), row = new Int32Array(cap);
@@ -179,27 +203,27 @@ export var Globe = (function(){
     var n = 0, spans = 0, dy, dx;
 
     for(dy=0; dy<Hd; dy++){
-      var Y = -(((dy+0.5)/dpr - v.cy)/v.R);
+      var Y = -(((dy+0.5)/dpr - cy)/v.R);
       var yy = Y*Y;
       if(yy >= 1) continue;
       var half = Math.sqrt(1-yy)*v.R;
-      var x0 = Math.ceil((v.cx-half)*dpr - 0.5), x1 = Math.floor((v.cx+half)*dpr - 0.5);
+      var x0 = Math.ceil((cx-half)*dpr - 0.5), x1 = Math.floor((cx+half)*dpr - 0.5);
       if(x0 < 0) x0 = 0;
       if(x1 > Wd-1) x1 = Wd-1;
       if(x1 < x0) continue;
-      var start = n, count = 0;
+      var count = 0;
       for(dx=x0; dx<=x1; dx++){
-        var X = ((dx+0.5)/dpr - v.cx)/v.R;
+        var X = ((dx+0.5)/dpr - cx)/v.R;
         var d2 = X*X + yy;
         if(d2 >= 1) continue;
         var Z = Math.sqrt(1-d2);
         var wy = ct*Y + st*Z;            /* undo the tilt */
-        var H  = ct*Z - st*Y;
+        var Hz = ct*Z - st*Y;
         if(wy > 1) wy = 1; else if(wy < -1) wy = -1;
         var r0 = ((0.5 - Math.asin(wy)/Math.PI) * TH) | 0;
         if(r0 < 0) r0 = 0; else if(r0 > TH-1) r0 = TH-1;
         row[n] = r0*TW;
-        var A = Math.atan2(X, H);
+        var A = Math.atan2(X, Hz);
         var ut = (A/TAU + 0.5) * TW;
         if(ut < 0) ut += TW; else if(ut >= TW) ut -= TW;
         u[n] = ut;
@@ -208,11 +232,11 @@ export var Globe = (function(){
       if(count){ dst[spans] = dy*Wd + x0; len[spans] = count; spans++; }
     }
 
-    canvas.width = Wd; canvas.height = Hd;
+    canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
     gl.width = Wd; gl.height = Hd;
     img = glx.createImageData(Wd, Hd);
     lut = { u:u, row:row, dst:dst, len:len, spans:spans, buf:new Uint32Array(img.data.buffer) };
-    rv = v;
+    rv = { R:v.R, cx:v.cx, cy:v.cy, whole:!!v.whole, ox:ox, oy:oy, fw:Wd/dpr, fh:Hd/dpr };
     needLut = false;
   }
 
@@ -234,10 +258,10 @@ export var Globe = (function(){
   }
 
   function draw(){
-    if(!size || !rv) return;
+    if(!W || !rv) return;
     var v = view(), R = v.R, cx = v.cx, cy = v.cy;
     ctx.setTransform(dpr,0,0,dpr,0,0);
-    ctx.clearRect(0,0,size,size);
+    ctx.clearRect(0,0,W,H);
 
     /* A ring of darkness. The sky behind is a photograph full of stars, and
        without this the limb of the planet dissolves into them. Pure black at
@@ -260,10 +284,11 @@ export var Globe = (function(){
          showing the last render at another zoom is exact - only softer. */
       var k = R / rv.R;
       ctx.setTransform(1,0,0,1,0,0);
-      if(Math.abs(k-1) < 0.0015 && Math.abs(cy-rv.cy) < 0.4){
+      if(!rv.whole && Math.abs(k-1) < 0.0015 && Math.abs(cy-rv.cy) < 0.4){
         ctx.drawImage(gl, 0, 0);
       } else {
-        ctx.drawImage(gl, (cx - rv.cx*k)*dpr, (cy - rv.cy*k)*dpr, size*k*dpr, size*k*dpr);
+        ctx.drawImage(gl, (cx + (rv.ox - rv.cx)*k)*dpr, (cy + (rv.oy - rv.cy)*k)*dpr,
+                      rv.fw*k*dpr, rv.fh*k*dpr);
       }
       ctx.setTransform(dpr,0,0,dpr,0,0);
     }
@@ -306,18 +331,7 @@ export var Globe = (function(){
     ctx.beginPath(); ctx.arc(cx,cy,R*1.10,0,TAU); ctx.fill();
     ctx.globalCompositeOperation = 'source-over';
 
-    /* Zoomed in, the planet reaches the foot of the box and stops dead
-       against the card. Fade it out instead, in step with the zoom. */
-    var zf = (zoom - 1) / (ZOOM - 1);
-    if(zf > 0.02){
-      var h = size*0.13;
-      var foot = ctx.createLinearGradient(0, size-h, 0, size);
-      foot.addColorStop(0, 'rgba(24,24,27,0)');
-      foot.addColorStop(0.55, 'rgba(24,24,27,' + (0.55*zf).toFixed(3) + ')');
-      foot.addColorStop(1, 'rgba(24,24,27,' + (0.97*zf).toFixed(3) + ')');
-      ctx.fillStyle = foot;
-      ctx.fillRect(0, size-h, size, h);
-    }
+    fadeEdges(cy, R);
 
     /* Cover the moment the table is rebuilt: same picture, different
        sharpness, so a straight cut would read as a glitch. */
@@ -332,11 +346,35 @@ export var Globe = (function(){
     placePin(v);
   }
 
+  /* Where the planet runs past the top or bottom of the box - zoomed in, or
+     just at full width in a box less tall than it is wide - it fades out into
+     the sky rather than stopping dead along a straight edge. Erased rather
+     than painted over, so the stars behind show through, and only as far as
+     it actually overruns, so a planet that fits is left exactly as it was. */
+  function fadeEdges(cy, R){
+    var reach = R*1.1, fh = Math.max(24, H*0.2);
+    var top = Math.min(1, Math.max(0, (reach - cy) / fh));
+    var bot = Math.min(1, Math.max(0, (cy + reach - H) / fh));
+    if(!top && !bot) return;
+    ctx.globalCompositeOperation = 'destination-out';
+    function band(y0, y1, a){
+      var g = ctx.createLinearGradient(0, y0, 0, y1);
+      g.addColorStop(0,    'rgba(0,0,0,' + a.toFixed(3) + ')');
+      g.addColorStop(0.45, 'rgba(0,0,0,' + (a*0.4).toFixed(3) + ')');
+      g.addColorStop(1,    'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, Math.min(y0, y1), W, fh);
+    }
+    if(top) band(0, fh, top);
+    if(bot) band(H, H - fh, bot);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
   function drawRoute(v){
     var C0 = Math.cos(lng0), S0 = Math.sin(lng0);
     var ct = Math.cos(TILT), st = Math.sin(TILT);
     var n = route.n, upto = Math.max(1, Math.round(n*revealT));
-    var i, x, y, z, X, H, Y, Z, px, py;
+    var i, x, y, z, X, Hz, Y, Z, px, py;
 
     /* Two passes: a soft wide stroke for the glow, then the line itself. The
        path is broken wherever it crosses to the far side of the planet, so
@@ -346,8 +384,8 @@ export var Globe = (function(){
       ctx.beginPath();
       for(i=0;i<=upto;i++){
         x = route.pts[i*3]; y = route.pts[i*3+1]; z = route.pts[i*3+2];
-        X = z*C0 - x*S0; H = x*C0 + z*S0;
-        Y = ct*y - st*H; Z = st*y + ct*H;
+        X = z*C0 - x*S0; Hz = x*C0 + z*S0;
+        Y = ct*y - st*Hz; Z = st*y + ct*Hz;
         if(Z <= 0){ drawing = false; continue; }
         px = v.cx + X*v.R; py = v.cy - Y*v.R;
         if(drawing) ctx.lineTo(px, py);
@@ -374,10 +412,13 @@ export var Globe = (function(){
     /* The departure end, marked and labelled on the canvas. A second floating
        flag in the DOM would collide with the race one at close zooms. */
     x = route.pts[0]; y = route.pts[1]; z = route.pts[2];
-    X = z*C0 - x*S0; H = x*C0 + z*S0;
-    Y = ct*y - st*H; Z = st*y + ct*H;
-    if(Z > 0.02){
-      px = v.cx + X*v.R; py = v.cy - Y*v.R;
+    X = z*C0 - x*S0; Hz = x*C0 + z*S0;
+    Y = ct*y - st*Hz; Z = st*y + ct*Hz;
+    px = v.cx + X*v.R; py = v.cy - Y*v.R;
+    /* Not while the airport is off the top or bottom of the box, as it can be
+       in a short one: the clamp below would leave its tag floating at the
+       edge with nothing under it. */
+    if(Z > 0.02 && py > 0 && py < H){
       ctx.beginPath(); ctx.arc(px, py, 5.5, 0, TAU);
       ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.fill();
       ctx.beginPath(); ctx.arc(px, py, 3, 0, TAU);
@@ -389,9 +430,9 @@ export var Globe = (function(){
         ctx.textBaseline = 'middle';
         var tw = ctx.measureText(txt).width;
         var bx = px + 11, by = py - 9, bw = tw + 14, bh = 19;
-        if(bx + bw > size - 4) bx = px - 11 - bw;      /* flip near the edge */
+        if(bx + bw > W - 4) bx = px - 11 - bw;         /* flip near the edge */
         if(by < 2) by = 2;
-        if(by + bh > size - 2) by = size - 2 - bh;
+        if(by + bh > H - 2) by = H - 2 - bh;
         ctx.fillStyle = 'rgba(12,12,14,0.82)';
         if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 3); ctx.fill(); }
         else ctx.fillRect(bx, by, bw, bh);
@@ -430,8 +471,8 @@ export var Globe = (function(){
 
     function proj(i){
       var x = route.pts[i*3], y = route.pts[i*3+1], z = route.pts[i*3+2];
-      var X = z*C0 - x*S0, H = x*C0 + z*S0;
-      var Y = ct*y - st*H, Z = st*y + ct*H;
+      var X = z*C0 - x*S0, Hz = x*C0 + z*S0;
+      var Y = ct*y - st*Hz, Z = st*y + ct*Hz;
       return [v.cx + X*v.R, v.cy - Y*v.R, Z];
     }
     var a = proj(i0), b = proj(i0+1);
@@ -463,8 +504,8 @@ export var Globe = (function(){
     var ct = Math.cos(TILT), st = Math.sin(TILT);
     var la = pinAt.lat*D2R, ln = pinAt.lng*D2R, cl = Math.cos(la);
     var x = cl*Math.cos(ln), y = Math.sin(la), z = cl*Math.sin(ln);
-    var X = z*C0 - x*S0, H = x*C0 + z*S0;
-    var Y = ct*y - st*H, Z = st*y + ct*H;
+    var X = z*C0 - x*S0, Hz = x*C0 + z*S0;
+    var Y = ct*y - st*Hz, Z = st*y + ct*Hz;
     if(Z <= 0){
       if(lastOp !== 0){ pin.style.opacity = 0; lastOp = 0; }
       return;
@@ -473,7 +514,17 @@ export var Globe = (function(){
        otherwise the pin nudges by hundredths of a pixel forever and every
        frame pays for a style recalculation. */
     var px2 = Math.round(v.cx + X*v.R), py2 = Math.round(v.cy - Y*v.R);
-    var op = Math.round(Math.min(1, Z*2.6)*100)/100;
+    /* The pin is an element over the canvas, not drawn on it, so nothing
+       clips it to the box: in a short box, mid-flight, it would hang above
+       the globe over the search field. It fades with the planet as it nears
+       the top or bottom edge instead, and is gone past it. */
+    var inBox = Math.min(1, Math.max(0, Math.min(py2, H - py2) / 28));
+    var op = Math.round(Math.min(1, Z*2.6)*inBox*100)/100;
+    /* Off the box it is hidden outright as well: opacity has a transition on
+       it, and fading out from wherever it last was left it showing over the
+       search field for the first third of a second of a flight. */
+    var vis = inBox > 0 ? '' : 'hidden';
+    if(vis !== lastVis){ pin.style.visibility = vis; lastVis = vis; }
     pin.hidden = false;
     if(px2 !== lastPx){ pin.style.left = px2 + 'px'; lastPx = px2; }
     if(py2 !== lastPy){ pin.style.top = py2 + 'px'; lastPy = py2; }
@@ -482,22 +533,22 @@ export var Globe = (function(){
     /* Flag above the marker where there is room, below it near the top. It
        reads left-to-right from the marker unless that would run off the right
        edge, and is clamped either way, so a long name never spills out. */
-    var stem = size < 300 ? 34 : 42;
+    var stem = H < 300 ? 34 : 42;
     var below = (py2 - stem - 34) < 2;
     if(below !== wasBelow){ pin.classList.toggle('below', below); wasBelow = below; }
     if(stem !== lastStem){ pin.style.setProperty('--stem', stem + 'px'); lastStem = stem; }
     var lx = px2 - 14;
-    if(lx + labelW > size - 4) lx = px2 + 14 - labelW;
+    if(lx + labelW > W - 4) lx = px2 + 14 - labelW;
     if(lx < 4) lx = 4;
-    if(lx + labelW > size - 4) lx = Math.max(4, size - 4 - labelW);
+    if(lx + labelW > W - 4) lx = Math.max(4, W - 4 - labelW);
     lx = Math.round(lx - px2 + 17);
     if(lx !== lastLx){ label.style.left = lx + 'px'; lastLx = lx; }
   }
 
   function measure(){
-    var w = wrap.offsetWidth;
-    if(!w || w === size) return;
-    size = w;
+    var w = wrap.offsetWidth, h = wrap.offsetHeight;
+    if(!w || !h || (w === W && h === H)) return;
+    W = w; H = h;
     needLut = true;
   }
 
@@ -601,9 +652,9 @@ export var Globe = (function(){
 
     var v = view();
     var still = (!rotTween && !zoomTween);
-    var want = pendingView ||
-               (needLut ? v
-                        : (still && rv && (Math.abs(v.R-rv.R) > 0.5 || Math.abs(v.cy-rv.cy) > 0.5) ? v : null));
+    var stale = rv && (Math.abs(v.R-rv.R) > 0.5 || Math.abs(v.cy-rv.cy) > 0.5 ||
+                       (rv.whole && clipped(v)));
+    var want = pendingView || (needLut ? v : (still && stale ? v : null));
     if(want){
       /* Sizing the snapshot canvas is what clears it, so it has to happen
          before the copy - and before buildLut changes the main canvas. */
@@ -634,7 +685,7 @@ export var Globe = (function(){
         tex = new Uint32Array(cc.getImageData(0,0,TW,TH).data.buffer);
         ready = true;
         needLut = true;
-        if(!raf && size){ measure(); buildLut(view()); draw(); }
+        if(!raf && W){ measure(); buildLut(view()); draw(); }
       } catch(e){ ready = false; }
     };
     /* The globe reads the texture's pixels back off a canvas, which a
@@ -675,7 +726,7 @@ export var Globe = (function(){
         target = null; pinAt = null; route = null; revealT = 0; zoomAim = ZOOM;
         queued = null; rotTween = null; closingIn = false;
         zoomTween = { t0:performance.now(), zf:zoom, zt:1, pf:pan, pt:0, dur:OUT_MS };
-        if(size) pendingView = wideView();
+        if(W) pendingView = wideView();
         pin.hidden = true;
         caption.classList.remove('sr-only');
         caption.innerHTML = "We'll suggest a race that fits your dates and budget";
@@ -697,7 +748,7 @@ export var Globe = (function(){
          the part of the sphere that fitted on the canvas at that zoom. Scaled
          down for the pull-out it left half the planet missing, so rebuild it
          wide before the move starts. */
-      if(size) pendingView = wideView();
+      if(W) pendingView = wideView();
       caption.classList.add('sr-only');
       caption.innerHTML = '<b>' + escapeHtml(name) + '</b>' + escapeHtml(city_);
       if(reduced){
@@ -714,7 +765,7 @@ export var Globe = (function(){
         panSy: Math.sin(at.lat*D2R - TILT),
         pinAt: at, route: null, zoomAim: ZOOM, label: null
       });
-      if(size) pendingView = wideView();
+      if(W) pendingView = wideView();
       if(reduced){
         rotTween = zoomTween = null;
         applyQueued();
@@ -741,7 +792,7 @@ export var Globe = (function(){
         panSy: centreY,
         pinAt: dest, route: arc, zoomAim: fitZoom(arc, centreY), label: null
       });
-      if(size) pendingView = wideView();
+      if(W) pendingView = wideView();
       caption.classList.add('sr-only');
       caption.innerHTML = '<b>' + escapeHtml(airportLabel(from)) + '</b>' +
                           'to ' + escapeHtml(answers.race || 'your race');
