@@ -6,25 +6,13 @@ import roomTriple from "./assets/images/room-triple.webp";
    race page all three carry the same inclusions and what changes is WHICH
    grandstand and WHICH hotel - Hungary runs Apex / Pit Exit 1 / Main Straight
    with a 5* on Gold, Italy runs Parabolica / Laterale Destra / First Chicane
-   all at 4*. The two lines at the top of each list are therefore the ones
-   that actually differ; the rest are the same in all three, spelled out on
-   every card because a customer choosing a tier should see the whole package
-   without having to look elsewhere on the page. */
+   all at 4*.
 
-export var TIER_INCLUDED = [
-  "Hotel with breakfast included",
-  "Return flights",
-  "Private airport transfers",
-  "Coach transfers from the hotel to the circuit",
-  "Tour guides throughout the weekend",
-  "Welcome drink on arrival"
-];
-
-/* The cards used to name the grandstand and the hotel per race, which meant
+   The cards used to name the grandstand and the hotel per race, which meant
    72 entries to keep current across 24 races. Both are gone: the seat is a
-   rating, and the hotel is one line in the included list. The same three
-   cards are now correct for every race on the calendar with nothing to
-   maintain. */
+   rating, and the inclusions, being the same for all three, are not listed
+   on the step at all. The same three cards are now correct for every race
+   on the calendar with nothing to maintain. */
 
 /* Out of five. Silver is a half, which is why these are drawn as a filled
    overlay over a full row rather than as whole star glyphs. */

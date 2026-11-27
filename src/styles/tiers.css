@@ -78,10 +78,11 @@
    Replaces the named grandstand on each card. Two rows of five stars, one
    grey and one in the tier's metal clipped to the score, so 4.5 draws as a
    half star without needing a half-star glyph. */
+/* No rule under it: there used to be a list of inclusions below it on each
+   card, and now the button follows directly. */
 .stand{
   display:flex; align-items:center; gap:9px;
-  margin-top:14px; padding-bottom:13px;
-  border-bottom:1px solid var(--border);
+  margin-top:14px;
 }
 .stand-label{
   flex:none; font-size:12px; letter-spacing:.02em; color:var(--text-dim);
@@ -112,22 +113,6 @@
   .stars svg{ width:13px; height:13px; }
 }
 
-.tier .feats{
-  list-style:none; margin:13px 0 0; padding:0;
-  display:grid; grid-template-columns:1fr 1fr; gap:9px 18px;
-}
-@media (max-width:520px){ .tier .feats{ grid-template-columns:1fr; } }
-.tier .feats li{ display:flex; align-items:flex-start; gap:9px; font-size:13px; line-height:1.4; }
-.tier .feats svg{ width:12px; height:12px; flex:none; margin-top:3px; color:var(--accent-text); }
-/* Nothing on these cards differs by race any more, so there is no lead list:
-   the rating carries the seat, and everything else is the same six lines on
-   all three packages. The rule above them is gone with it - the rating row
-   already draws one. */
-.tier .feats.rest{
-  margin:14px 0 0; padding-top:0;
-}
-.tier .feats.rest li{ font-size:12.5px; color:var(--text-dim); }
-.tier .feats.rest svg{ width:10px; height:10px; margin-top:3px; }
 .tier .cta{
   display:block; margin-top:18px; padding:11px;
   text-align:center; border-radius:var(--radius-sm);
