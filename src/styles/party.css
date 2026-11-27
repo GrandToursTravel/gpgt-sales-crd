@@ -20,8 +20,9 @@
 }
 /* --fig-max is the tallest an adult is drawn, and the row reserves that much
    height so the question below does not shuffle up and down as figures come
-   and go. The script reads it from here, so the breakpoint lives in one
-   place. */
+   and go. The script sizes the figures to the row's width (--fig-h) and the
+   cap is applied here, on each figure, so the breakpoints and the screen
+   height live in one place. */
 .party-figures{
   position:relative;
   display:flex; flex-wrap:wrap;
@@ -30,7 +31,8 @@
      the wrapped rows, which squeezes them until the figures overlap. */
   align-content:flex-end;
   gap:18px 14px;
-  --fig-max:260px;
+  /* 260px at most; less on a short screen - see the height caps below. */
+  --fig-max:clamp(96px, calc(var(--room) - 384px), 260px);
   min-height:var(--fig-max);
 }
 /* The groups are containers for the diffing code, not for layout - the
@@ -57,10 +59,10 @@
 .party-slot.is-out{ animation:figOut .16s ease-in both; }
 .party-fig{
   display:block;
-  height:var(--fig-h, 96px);
+  height:min(var(--fig-h, 96px), var(--fig-max));
   width:auto;
 }
-.party-fig.is-kid{ height:calc(var(--fig-h, 96px) * 0.681); }
+.party-fig.is-kid{ height:calc(min(var(--fig-h, 96px), var(--fig-max)) * 0.681); }
 @keyframes figIn{
   from{ opacity:0; transform:translateY(8px) scale(.7); }
   to{ opacity:1; transform:none; }
@@ -85,7 +87,20 @@
 }
 @media (max-width:520px){
   .party-stage{ margin:0 -18px 18px; padding:28px 8px 26px; }
-  .party-figures{ gap:8px 10px; --fig-max:190px; }
+  .party-figures{ gap:8px 10px; --fig-max:clamp(84px, calc(var(--room) - 356px), 190px); }
+}
+/* The figures give up height before the step runs past the fold (see --room
+   in wizard.css): each figure taken off --room is everything else on the
+   step, and the floor is about where a face stops reading as one. On a short
+   screen the stage gives up most of its padding first. */
+@media (max-height:820px){
+  .party-stage{ padding-top:26px; padding-bottom:18px; margin-bottom:14px; }
+  .party-caption{ margin-bottom:16px; }
+  .party-figures{ --fig-max:clamp(96px, calc(var(--room) - 332px), 260px); }
+}
+@media (max-height:820px) and (max-width:520px){
+  .party-stage{ padding-top:18px; padding-bottom:14px; }
+  .party-figures{ --fig-max:clamp(84px, calc(var(--room) - 320px), 190px); }
 }
 @media (prefers-reduced-motion:reduce){
   .party-slot, .party-slot.is-out{ animation:none; }

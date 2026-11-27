@@ -2,10 +2,13 @@
    faded into the card below it, so it reads as part of the panel rather than
    a picture dropped on top of one. The crop is baked into the file at 2:1 and
    the band keeps that ratio, so the driver and the car sit in the same place
-   at every width. */
+   at every width - until the screen is too short for it (see the height caps
+   at the end of this file), when the band gets shallower and the photo loses
+   mostly its foot, because the driver's helmet is right at the top. */
 .step-banner{
   position:relative;
   margin:0 -32px 30px;
+  width:calc(100% + 64px);
   aspect-ratio:2 / 1;
   overflow:hidden;
 }
@@ -13,7 +16,7 @@
   content:""; position:absolute; inset:0;
   background-image:url("../assets/images/banner-first-name.webp");
   background-size:cover;
-  background-position:center center;
+  background-position:center 8%;
 }
 /* Two scrims. The vertical one lands the photo on the card colour exactly so
    there is no seam; the horizontal one settles the darker right-hand side. */
@@ -33,7 +36,7 @@
       var(--card) 100%);
 }
 @media (max-width:520px){
-  .step-banner{ margin:0 -18px 24px; }
+  .step-banner{ margin:0 -18px 24px; width:calc(100% + 36px); }
 }
 
 /* Second treatment, for the last-name step: the photo runs full width and
@@ -71,6 +74,7 @@
 }
 .stage-media{
   margin:0 -32px;
+  width:calc(100% + 64px);
   aspect-ratio:var(--stage-ratio);
   background-image:var(--stage-seam), var(--stage-wash), var(--stage-photo);
   background-size:cover, cover, cover;
@@ -89,7 +93,7 @@
 }
 .step-stage .sub{ position:relative; }
 @media (max-width:520px){
-  .stage-media{ margin:0 -18px; }
+  .stage-media{ margin:0 -18px; width:calc(100% + 36px); }
   .step .step-stage h2{ margin-top:-42px; }
   /* Only the very wide photos need this. On one that is 1.5:1 the corner
      wash still reaches well past the heading, and a bottom scrim there
@@ -113,6 +117,7 @@
 .step-plate{
   position:relative;
   margin:0 -32px 26px;
+  width:calc(100% + 64px);
   aspect-ratio:var(--plate-ratio, 547 / 365);
   background-image:var(--plate-photo);
   background-size:cover;
@@ -131,7 +136,7 @@
     var(--card) 100%);
 }
 @media (max-width:520px){
-  .step-plate{ margin:0 -18px 22px; }
+  .step-plate{ margin:0 -18px 22px; width:calc(100% + 36px); }
 }
 
 /* The photos for the last-name, phone and email steps. These were inline
@@ -140,3 +145,30 @@
 .photo-last-name{ --stage-photo:url("../assets/images/stage-last-name.webp"); }
 .photo-phone{ --plate-photo:url("../assets/images/plate-phone.webp"); }
 .photo-email{ --plate-photo:url("../assets/images/plate-email.webp"); }
+
+/* On a short screen each photo gives up height before its step runs past
+   the fold (see --room in wizard.css). They are all cover-sized, so a
+   shallower box crops the picture rather than squashing it; each figure is
+   everything else on that step, which is more on a phone, where the
+   questions wrap. Where the crop falls is set per photo: Leclerc stands at
+   the very top of his, so that one loses its foot, and the cars in the
+   email photo are in its lower half.
+
+   This is why the three photo boxes above state their width outright
+   rather than leaving the negative margins to stretch them: a box with an
+   aspect-ratio and an auto width keeps its ratio under a max-height by
+   getting narrower, which pulled the photos in from the card's right edge. */
+.step-banner{ max-height:max(120px, calc(var(--room) - 210px)); }
+.stage-media{
+  max-height:max(150px, calc(var(--room) - 138px));
+  background-position:center, center, center top;
+}
+.photo-phone{ max-height:max(120px, calc(var(--room) - 208px)); }
+.photo-email{
+  max-height:max(120px, calc(var(--room) - 206px));
+  background-position:center 70%;
+}
+@media (max-width:520px){
+  .photo-phone{ max-height:max(120px, calc(var(--room) - 225px)); }
+  .photo-email{ max-height:max(120px, calc(var(--room) - 237px)); }
+}

@@ -58,6 +58,9 @@ body{
   margin:0 auto;
   padding:36px 20px 0px;
 }
+/* Less above the card on a short screen - see the note in wizard.css. */
+@media (max-height:820px){ .wrap{ padding-top:16px; } }
+@media (max-height:820px) and (max-width:520px){ .wrap{ padding-top:12px; } }
 /* Only three things are held back from the new width, and each for a reason:
    prose needs a readable measure, a single-line text box looks absurd at
    750px, and the globe is square so its width is also its height. Everything

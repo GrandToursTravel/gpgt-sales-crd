@@ -52,10 +52,36 @@
 @media (max-width:480px){ .two-col{ grid-template-columns:1fr; } }
 
 /* nav buttons */
+/* Pinned to the foot of the screen, so Continue is never below the fold
+   however long the step is. On a step that fits, sticky does nothing and the
+   row sits where it always did; on one that doesn't - the tiers, the review,
+   most things on a small phone - the row stays put and the step scrolls
+   underneath it. It bleeds out over the card's side and bottom padding so the
+   card colour runs right behind it. bottom is -1px rather than 0 so that,
+   pinned, it is never quite fully on screen, which is how main.js tells. */
 .nav-row{
+  position:sticky; bottom:-1px; z-index:5;
   display:flex; justify-content:space-between; align-items:center;
-  margin-top:30px;
+  margin:16px -32px -32px;
+  padding:14px 32px max(24px, env(safe-area-inset-bottom, 0px));
+  background:var(--card);
+  border-radius:0 0 calc(var(--radius) - 1px) calc(var(--radius) - 1px);
+  transition:box-shadow .2s ease;
 }
+/* Pinned, it draws a rule and a shadow along its top edge: without them the
+   step scrolling underneath looks cut off rather than continued. */
+.nav-row.is-pinned{
+  box-shadow:0 -1px 0 var(--border), 0 -16px 24px -14px rgba(0,0,0,.7);
+}
+@media (max-width:520px){
+  .nav-row{
+    margin:14px -18px -22px;
+    padding:12px 18px max(18px, env(safe-area-inset-bottom, 0px));
+  }
+}
+/* So a field that takes focus is scrolled clear of the pinned row rather
+   than left behind it. */
+html{ scroll-padding-bottom:104px; }
 
 /* review */
 .summary-list{ display:flex; flex-direction:column; gap:0; margin-bottom:8px; }

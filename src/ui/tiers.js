@@ -1,4 +1,4 @@
-import { BOOKING_URL, TIERS, TIER_INCLUDED, TIER_STAND_RATING, UNSURE } from "../config.js";
+import { BOOKING_URL, TIERS, TIER_STAND_RATING, UNSURE } from "../config.js";
 import { $, escapeHtml } from "../dom.js";
 import { answers } from "../state.js";
 import { refreshNav } from "../wizard.js";
@@ -14,15 +14,10 @@ function emblem(tint, facets){
   return s + '</svg>';
 }
 
-/* The lucide Diamond used by the reference card is a rotated square. */
+/* The lucide Diamond used by the reference card is a rotated square. Used
+   by the payment step's terms list. */
 export var TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
            'stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12 12 2.5Z"/></svg>';
-
-function featItems(list){
-  return list.map(function(f){
-    return '<li>' + TICK + '<span>' + escapeHtml(f) + '</span></li>';
-  }).join("");
-}
 
 /* The two leading lines come from the chosen race when we hold its detail. */
 /* One star path, reused ten times - five grey underneath and five in the
@@ -47,9 +42,10 @@ function starRow(rating){
          '</div>';
 }
 
+/* The rating is all a card carries under its name: it is the one thing that
+   differs between the tiers. */
 function featureList(t){
-  return starRow(TIER_STAND_RATING[t.name] || 0) +
-         '<ul class="feats rest">' + featItems(TIER_INCLUDED) + '</ul>';
+  return starRow(TIER_STAND_RATING[t.name] || 0);
 }
 
 /* Each card carries its own metal, mixed here rather than in the stylesheet

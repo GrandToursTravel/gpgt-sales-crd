@@ -62,3 +62,37 @@
   font-size:14.5px;
   margin:0 0 24px;
 }
+
+/* On a short screen - a laptop, or any phone once its browser bars are
+   taken off - every pixel of height goes to the step itself, so the space
+   around it tightens. Width is not the test: a 1366px laptop is as short of
+   height as a phone is. The pictures that scale with the height are in
+   step-media.css, race-globe.css, party.css and calendar.css. */
+@media (max-height:820px){
+  .card{ padding-top:24px; }
+  .progress-row{ margin-bottom:18px; }
+  .step .sub{ margin-bottom:18px; }
+}
+@media (max-height:820px) and (max-width:520px){
+  .card{ padding-top:20px; }
+}
+
+/* ---------- Fitting a step to the screen ----------
+   --room is the height a step has to itself: the screen, less --chrome - the
+   gap above the card, the card's padding, the progress row and the nav row.
+   The pictures that can give way (the photos, the globe, the party, the
+   month) cap themselves at --room less everything else on their own step,
+   so on most screens the whole step fits with nothing hidden under the nav
+   row. Where even that cannot fit - the tiers, the review, the smallest
+   phones - the nav row pins itself to the foot of the screen instead.
+
+   svh is the screen with a phone browser's bars showing, so nothing resizes
+   as they slide away. The --chrome figures, and the figure each picture
+   takes off --room, are measured rather than worked out: change the spacing
+   of a step and its figure wants measuring again. */
+:root{ --screen:100vh; }
+@supports (height:100svh){ :root{ --screen:100svh; } }
+.card{ --chrome:246px; --room:calc(var(--screen) - var(--chrome)); }
+@media (max-width:520px){ .card{ --chrome:228px; } }
+@media (max-height:820px){ .card{ --chrome:200px; } }
+@media (max-height:820px) and (max-width:520px){ .card{ --chrome:184px; } }

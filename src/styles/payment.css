@@ -121,6 +121,9 @@
   font-family:var(--font-body); font-size:15px; line-height:1.6;
   padding:13px 14px;
 }
+/* A little shallower on a short screen, which is the difference between the
+   step fitting on a laptop and not. It can still be dragged taller. */
+@media (max-height:820px){ .wish-box{ height:136px; min-height:0; } }
 .wish-box:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-dim); }
 .wish-box::placeholder{ color:var(--text-faint); }
 .wish-meter{
